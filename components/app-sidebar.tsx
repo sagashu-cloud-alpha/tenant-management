@@ -17,14 +17,23 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { AvatarMark } from "./avatar-mark"
 
 const navSections = [
   {
     label: "Workspace",
     items: [
       { title: "Tenants", href: "/tenants", icon: "ti ti-building-skyscraper" },
-      { title: "Create Tenant", href: "/create-tenants", icon: "ti ti-circle-plus" },
-      { title: "Tenant Detail", href: "/tenant-details", icon: "ti ti-layout-dashboard" },
+      {
+        title: "Create Tenant",
+        href: "/create-tenants",
+        icon: "ti ti-circle-plus",
+      },
+      {
+        title: "Tenant Detail",
+        href: "/tenant-details",
+        icon: "ti ti-layout-dashboard",
+      },
     ],
   },
   {
@@ -47,7 +56,8 @@ const navSections = [
 
 function isActive(pathname: string, href: string) {
   if (href.startsWith("/tenants") && pathname === "/tenants") return true
-  if (href.startsWith("/tenants") && pathname.startsWith("/tenants/")) return true
+  if (href.startsWith("/tenants") && pathname.startsWith("/tenants/"))
+    return true
   return pathname === href || pathname.startsWith(href + "/")
 }
 
@@ -64,18 +74,16 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
-      <SidebarHeader className="border-b px-5 pb-[18px] pt-[22px] group-data-[collapsible=icon]:px-3">
+      <SidebarHeader className="border-b px-5 pt-[22px] pb-[18px] group-data-[collapsible=icon]:px-3">
         <Link
           href="/tenants"
           className="flex items-center gap-2.5 no-underline group-data-[collapsible=icon]:justify-center"
         >
-          <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-primary text-[15px] text-primary-foreground">
-            <i className="ti ti-layers-intersect" />
-          </div>
+          <AvatarMark initials="CA" size="sm" variant="brand" shape="rounded" />
           {!isCollapsed && (
             <span className="font-display text-[17px] font-bold tracking-tight">
               Cloud Alpha
-              <span className="ml-1 align-middle rounded border border-primary bg-primary/10 px-[5px] py-[1px] text-[9px] text-primary font-mono">
+              <span className="ml-1 rounded border border-primary bg-primary/10 px-[5px] py-[1px] align-middle font-mono text-[9px] text-primary">
                 SaaS
               </span>
             </span>
@@ -85,8 +93,11 @@ export function AppSidebar() {
 
       <SidebarContent>
         {navSections.map((section) => (
-          <SidebarGroup key={section.label} className="px-2.5 py-1 group-data-[collapsible=icon]:px-2">
-            <SidebarGroupLabel className="h-auto px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden">
+          <SidebarGroup
+            key={section.label}
+            className="px-2.5 py-1 group-data-[collapsible=icon]:px-2"
+          >
+            <SidebarGroupLabel className="h-auto px-2.5 py-1 font-mono text-[10px] tracking-wider text-muted-foreground uppercase group-data-[collapsible=icon]:hidden">
               {section.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -99,11 +110,17 @@ export function AppSidebar() {
                         asChild
                         isActive={active}
                         tooltip={item.title}
-                        className="h-auto rounded-lg px-[10px] py-[9px] text-[13.5px] font-medium hover:bg-muted data-[active=true]:bg-primary/10 data-[active=true]:text-primary [&_i]:text-[17px] [&_i]:w-auto [&_i]:h-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
+                        className="h-auto rounded-lg px-[10px] py-[9px] text-[13.5px] font-medium group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2 hover:bg-muted data-[active=true]:bg-primary/10 data-[active=true]:text-primary [&_i]:h-auto [&_i]:w-auto [&_i]:text-[17px]"
                       >
-                        <Link href={item.href} className="flex items-center gap-2.5" onClick={handleNavClick}>
+                        <Link
+                          href={item.href}
+                          className="flex items-center gap-2.5"
+                          onClick={handleNavClick}
+                        >
                           <i className={item.icon} />
-                          <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                          <span className="group-data-[collapsible=icon]:hidden">
+                            {item.title}
+                          </span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -116,16 +133,16 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t px-2.5 py-3.5 group-data-[collapsible=icon]:px-2">
-        <div className="flex cursor-pointer items-center gap-2.5 rounded-lg p-2 hover:bg-muted group-data-[collapsible=icon]:justify-center">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-            OP
-          </div>
-          {!isCollapsed && (
-            <div>
-              <div className="text-sm font-medium">Ops Admin</div>
-              <div className="text-xs text-muted-foreground">Super Admin</div>
-            </div>
-          )}
+        <div className="flex cursor-pointer items-center gap-2.5 rounded-lg p-2 group-data-[collapsible=icon]:justify-center hover:bg-muted">
+          <AvatarMark
+            initials="OP"
+            size="sm"
+            variant="user"
+            shape="rounded"
+            showName={!isCollapsed}
+            name="Ops Admin"
+            subtext="Super Admin"
+          />
         </div>
       </SidebarFooter>
 

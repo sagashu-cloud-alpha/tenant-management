@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CloudAxis — Tenant Management Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── CSS Variables (shadcn-like) ── */
+:root {
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --sidebar-w: 248px;
+  --topbar-h: 56px;
+  --transition: 150ms cubic-bezier(0.4,0,0.2,1);
+}
+
+/* DARK THEME */
+[data-theme="dark"] {
+  --bg:           hsl(224 71% 4%);
+  --bg-subtle:    hsl(222 47% 6%);
+  --bg-card:      hsl(222 47% 7%);
+  --bg-elevated:  hsl(222 47% 9%);
+  --bg-hover:     hsl(222 47% 11%);
+  --bg-active:    hsl(222 47% 13%);
+  --border:       hsl(217 33% 17%);
+  --border-input: hsl(217 33% 20%);
+  --border-focus: hsl(213 94% 68%);
+  --text-primary:   hsl(210 40% 98%);
+  --text-secondary: hsl(215 20% 65%);
+  --text-muted:     hsl(215 16% 45%);
+  --text-disabled:  hsl(215 16% 30%);
+  --primary:        hsl(213 94% 68%);
+  --primary-hover:  hsl(213 94% 62%);
+  --primary-fg:     hsl(224 71% 4%);
+  --primary-muted:  hsla(213,94%,68%,0.12);
+  --primary-muted2: hsla(213,94%,68%,0.2);
+  --destructive:    hsl(0 84% 60%);
+  --destructive-muted: hsla(0,84%,60%,0.12);
+  --warning:        hsl(38 92% 50%);
+  --warning-muted:  hsla(38,92%,50%,0.12);
+  --success:        hsl(142 71% 45%);
+  --success-muted:  hsla(142,71%,45%,0.12);
+  --purple:         hsl(263 70% 70%);
+  --purple-muted:   hsla(263,70%,70%,0.12);
+  --teal:           hsl(173 80% 50%);
+  --teal-muted:     hsla(173,80%,50%,0.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow:    0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+  --sidebar-bg: hsl(222 47% 6%);
+  --topbar-bg:  hsl(222 47% 6%);
+  --input-bg:   hsl(222 47% 9%);
+  --scrollbar:  hsl(217 33% 17%);
+}
+
+/* LIGHT THEME */
+[data-theme="light"] {
+  --bg:           hsl(0 0% 100%);
+  --bg-subtle:    hsl(210 20% 98%);
+  --bg-card:      hsl(0 0% 100%);
+  --bg-elevated:  hsl(210 20% 98%);
+  --bg-hover:     hsl(210 20% 96%);
+  --bg-active:    hsl(213 94% 95%);
+  --border:       hsl(214 32% 91%);
+  --border-input: hsl(214 32% 85%);
+  --border-focus: hsl(213 94% 55%);
+  --text-primary:   hsl(222 47% 11%);
+  --text-secondary: hsl(215 16% 47%);
+  --text-muted:     hsl(215 16% 60%);
+  --text-disabled:  hsl(215 16% 75%);
+  --primary:        hsl(213 94% 55%);
+  --primary-hover:  hsl(213 94% 48%);
+  --primary-fg:     hsl(0 0% 100%);
+  --primary-muted:  hsla(213,94%,55%,0.08);
+  --primary-muted2: hsla(213,94%,55%,0.15);
+  --destructive:    hsl(0 72% 51%);
+  --destructive-muted: hsla(0,72%,51%,0.08);
+  --warning:        hsl(32 95% 44%);
+  --warning-muted:  hsla(32,95%,44%,0.08);
+  --success:        hsl(142 76% 36%);
+  --success-muted:  hsla(142,76%,36%,0.08);
+  --purple:         hsl(263 70% 50%);
+  --purple-muted:   hsla(263,70%,50%,0.08);
+  --teal:           hsl(173 80% 36%);
+  --teal-muted:     hsla(173,80%,36%,0.08);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+  --sidebar-bg: hsl(0 0% 100%);
+  --topbar-bg:  hsl(0 0% 100%);
+  --input-bg:   hsl(0 0% 100%);
+  --scrollbar:  hsl(214 32% 85%);
+}
+
+html, body { height: 100%; font-family: var(--font); font-size: 14px; line-height: 1.5; background: var(--bg); color: var(--text-primary); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+/* ── Views ── */
+#view-landing, #view-login, #view-app { display: none; width: 100%; height: 100%; }
+#view-landing.active, #view-login.active, #view-app.active { display: flex; }
+#view-landing.active { flex-direction: column; overflow-y: auto; }
+
+/* ═══════════════════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════════════════ */
+.landing { min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
+
+/* Landing Nav */
+.lnav {
+  display: flex; align-items: center; padding: 0 40px; height: 64px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 100;
+  gap: 32px;
+}
+.lnav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.lnav-logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--primary); display: flex; align-items: center; justify-content: center;
+  color: var(--primary-fg); font-size: 16px;
+}
+.lnav-logo-text { font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+.lnav-links { display: flex; gap: 4px; flex: 1; }
+.lnav-link {
+  padding: 6px 14px; border-radius: var(--radius); font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer; transition: all var(--transition); border: none; background: none;
+  text-decoration: none;
+}
+.lnav-link:hover { color: var(--text-primary); background: var(--bg-hover); }
+.lnav-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+
+/* Hero */
+.hero {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 100px 24px 80px; gap: 24px; max-width: 760px; margin: 0 auto;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 100px;
+  background: var(--primary-muted); border: 1px solid var(--primary-muted2);
+  color: var(--primary); font-size: 12px; font-weight: 500;
+}
+.hero-badge i { font-size: 13px; }
+.hero-title {
+  font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -1.5px;
+  line-height: 1.1; color: var(--text-primary);
+}
+.hero-title span { color: var(--primary); }
+.hero-subtitle { font-size: 18px; color: var(--text-secondary); line-height: 1.6; max-width: 580px; }
+.hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+/* Bento / Features grid */
+.features-section { padding: 40px 40px 80px; max-width: 1100px; margin: 0 auto; width: 100%; }
+.section-label {
+  text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--primary); margin-bottom: 12px;
+}
+.section-title {
+  text-align: center; font-size: 30px; font-weight: 700; letter-spacing: -0.5px;
+  color: var(--text-primary); margin-bottom: 8px;
+}
+.section-sub { text-align: center; font-size: 16px; color: var(--text-secondary); margin-bottom: 40px; }
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.bento-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px; transition: all var(--transition);
+}
+.bento-card:hover { border-color: var(--border-focus); box-shadow: var(--shadow); transform: translateY(-1px); }
+.bento-card.featured { grid-column: span 2; }
+.bento-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; font-size: 20px;
+}
+.bento-icon.blue { background: var(--primary-muted); color: var(--primary); }
+.bento-icon.green { background: var(--success-muted); color: var(--success); }
+.bento-icon.purple { background: var(--purple-muted); color: var(--purple); }
+.bento-icon.amber { background: var(--warning-muted); color: var(--warning); }
+.bento-icon.teal { background: var(--teal-muted); color: var(--teal); }
+.bento-icon.red { background: var(--destructive-muted); color: var(--destructive); }
+.bento-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.bento-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Pricing */
+.pricing-section { padding: 40px 40px 80px; max-width: 1100px; margin: 0 auto; width: 100%; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.pricing-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px;
+  display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden;
+}
+.pricing-card.popular { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), var(--shadow); }
+.pricing-popular-badge {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--primary); color: var(--primary-fg);
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px;
+}
+.pricing-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.pricing-price { display: flex; align-items: baseline; gap: 4px; }
+.pricing-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); }
+.pricing-period { font-size: 14px; color: var(--text-secondary); }
+.pricing-desc { font-size: 14px; color: var(--text-secondary); }
+.pricing-features { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.pricing-feature { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
+.pricing-feature i { color: var(--success); font-size: 16px; flex-shrink: 0; }
+
+/* Landing footer */
+.landing-footer {
+  border-top: 1px solid var(--border); padding: 32px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--text-muted); font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════
+   LOGIN PAGE
+══════════════════════════════════════════════════ */
+#view-login {
+  align-items: center; justify-content: center;
+  background: var(--bg-subtle);
+  min-height: 100vh;
+}
+.login-card {
+  width: 100%; max-width: 400px; margin: 24px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 40px;
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column; gap: 24px;
+}
+.login-header { text-align: center; }
+.login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+.login-logo-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--primary); display: flex; align-items: center; justify-content: center;
+  color: var(--primary-fg); font-size: 18px;
+}
+.login-logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.login-title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; color: var(--text-primary); }
+.login-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+.login-fields { display: flex; flex-direction: column; gap: 16px; }
+.login-error {
+  background: var(--destructive-muted); border: 1px solid var(--destructive);
+  border-radius: var(--radius); padding: 10px 14px;
+  color: var(--destructive); font-size: 13px; display: flex; gap: 8px; align-items: center;
+  display: none;
+}
+.login-footer-text { text-align: center; font-size: 13px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════════════ */
+#view-app { flex-direction: row; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--sidebar-bg); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  transition: width var(--transition);
+}
+.sidebar-logo {
+  height: var(--topbar-h); display: flex; align-items: center;
+  padding: 0 16px; border-bottom: 1px solid var(--border); gap: 10px; flex-shrink: 0;
+}
+.sidebar-logo-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--primary); display: flex; align-items: center; justify-content: center;
+  color: var(--primary-fg); font-size: 14px; flex-shrink: 0;
+}
+.sidebar-logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-primary); }
+.sidebar-logo-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+  background: var(--primary-muted); color: var(--primary); border: 1px solid var(--primary-muted2);
+}
+
+.sidebar-body { flex: 1; overflow-y: auto; padding: 8px; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-muted); padding: 8px 12px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border-radius: var(--radius); color: var(--text-secondary); cursor: pointer;
+  transition: all var(--transition); font-size: 13.5px; font-weight: 500;
+  user-select: none; margin-bottom: 1px; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item i { font-size: 17px; flex-shrink: 0; }
+.nav-item span.nav-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  background: var(--primary-muted); color: var(--primary);
+  padding: 1px 7px; border-radius: 100px;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--primary-muted); color: var(--primary); }
+.nav-item.active i { color: var(--primary); }
+
+.sidebar-footer {
+  border-top: 1px solid var(--border); padding: 12px 8px;
+}
+.user-card {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: var(--radius); cursor: pointer; transition: background var(--transition);
+}
+.user-card:hover { background: var(--bg-hover); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--primary); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--primary-fg); flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.user-email { font-size: 11px; color: var(--text-muted); }
+.user-chevron { margin-left: auto; color: var(--text-muted); font-size: 15px; }
+
+/* ── Main ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+
+.topbar {
+  height: var(--topbar-h); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px; gap: 12px;
+  background: var(--topbar-bg); flex-shrink: 0;
+}
+.topbar-breadcrumb { display: flex; align-items: center; gap: 8px; flex: 1; }
+.topbar-crumb { font-size: 14px; color: var(--text-muted); }
+.topbar-crumb.current { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.topbar-sep { color: var(--text-muted); font-size: 14px; }
+.topbar-actions { display: flex; gap: 6px; align-items: center; }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ── Pages ── */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Page Header ── */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; color: var(--text-primary); }
+.page-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13.5px; font-weight: 500;
+  cursor: pointer; border: 1px solid transparent; outline: none;
+  transition: all var(--transition); font-family: var(--font);
+  white-space: nowrap; text-decoration: none;
+}
+.btn i { font-size: 16px; }
+.btn-sm { padding: 6px 12px; font-size: 12.5px; }
+.btn-sm i { font-size: 14px; }
+.btn-xs { padding: 4px 9px; font-size: 12px; border-radius: 5px; }
+.btn-xs i { font-size: 13px; }
+
+.btn-default {
+  background: var(--bg-elevated); color: var(--text-primary);
+  border-color: var(--border-input);
+}
+.btn-default:hover { background: var(--bg-hover); }
+
+.btn-primary {
+  background: var(--primary); color: var(--primary-fg);
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+.btn-ghost {
+  background: transparent; color: var(--text-secondary); border-color: transparent;
+}
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.btn-destructive {
+  background: var(--destructive-muted); color: var(--destructive);
+  border-color: var(--destructive);
+}
+.btn-destructive:hover { opacity: 0.85; }
+
+.btn-outline {
+  background: transparent; color: var(--text-primary); border-color: var(--border-input);
+}
+.btn-outline:hover { background: var(--bg-hover); }
+
+/* ── Inputs ── */
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.label {
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+}
+.label-hint { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+.label span.req { color: var(--destructive); margin-left: 2px; }
+.input, .select, textarea.input {
+  width: 100%; padding: 9px 12px;
+  background: var(--input-bg); border: 1px solid var(--border-input);
+  border-radius: var(--radius); color: var(--text-primary);
+  font-size: 13.5px; font-family: var(--font); outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.input:focus, .select:focus, textarea.input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-muted);
+}
+.input::placeholder { color: var(--text-muted); }
+textarea.input { resize: vertical; min-height: 80px; }
+.select {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; padding-right: 32px;
+}
+.input-hint { font-size: 12px; color: var(--text-muted); }
+
+/* ── Card ── */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.card-header { padding: 18px 20px 0; }
+.card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.card-desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.card-body { padding: 20px; }
+.card-footer {
+  padding: 14px 20px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 100px;
+  font-size: 11.5px; font-weight: 500;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.badge-active { background: var(--success-muted); color: var(--success); }
+.badge-suspended { background: var(--warning-muted); color: var(--warning); }
+.badge-inactive { background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border); }
+.badge-starter { background: var(--teal-muted); color: var(--teal); }
+.badge-pro { background: var(--primary-muted); color: var(--primary); }
+.badge-enterprise { background: var(--purple-muted); color: var(--purple); }
+.badge-running { background: var(--success-muted); color: var(--success); }
+.badge-warning { background: var(--warning-muted); color: var(--warning); }
+.badge-stopped { background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ── Stats Grid ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px 18px; position: relative; overflow: hidden;
+}
+.stat-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 0; }
+.stat-top-bar.blue { background: var(--primary); }
+.stat-top-bar.green { background: var(--success); }
+.stat-top-bar.amber { background: var(--warning); }
+.stat-top-bar.purple { background: var(--purple); }
+.stat-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-primary); line-height: 1; }
+.stat-delta { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.stat-delta .up { color: var(--success); }
+.stat-delta .down { color: var(--destructive); }
+.stat-icon {
+  position: absolute; top: 16px; right: 16px;
+  font-size: 20px; opacity: 0.15;
+}
+
+/* ── Filter Bar ── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.search-wrap { position: relative; flex: 1; max-width: 320px; }
+.search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; pointer-events: none; }
+.search-wrap input { padding-left: 34px; }
+.filter-select { width: auto; }
+
+/* ── Table ── */
+.table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+table.table { width: 100%; border-collapse: collapse; }
+table.table thead { background: var(--bg-elevated); }
+table.table th {
+  padding: 10px 16px; text-align: left;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+table.table td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; }
+table.table tbody tr:last-child td { border-bottom: none; }
+table.table tbody tr { transition: background var(--transition); cursor: pointer; }
+table.table tbody tr:hover { background: var(--bg-hover); }
+.tenant-cell { display: flex; align-items: center; gap: 10px; }
+.tenant-avatar {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.tenant-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.tenant-sub { font-size: 12px; color: var(--text-muted); font-family: monospace; }
+.td-mono { font-family: monospace; font-size: 12.5px; color: var(--text-secondary); }
+.row-actions { display: flex; gap: 4px; justify-content: flex-end; }
+.icon-btn {
+  width: 28px; height: 28px; border-radius: 5px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-muted); cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border); }
+
+/* ── Form Layout ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+
+.section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.section-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.section-card-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.section-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 8px; }
+
+/* ── Sliders ── */
+.slider-rows { display: flex; flex-direction: column; gap: 16px; }
+.slider-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 16px; }
+.slider-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.slider-val { font-size: 13px; font-family: monospace; color: var(--text-primary); text-align: right; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; height: 4px;
+  border-radius: 2px; background: var(--border-input); outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--primary); border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px var(--primary); cursor: pointer;
+}
+
+/* ── Toggle Pills ── */
+.toggle-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.toggle-pill {
+  padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border-input); background: var(--bg-elevated);
+  color: var(--text-secondary); transition: all var(--transition); user-select: none;
+}
+.toggle-pill.selected { background: var(--primary-muted); border-color: var(--primary); color: var(--primary); }
+.toggle-pill:hover:not(.selected) { background: var(--bg-hover); color: var(--text-primary); }
+
+/* ── Tenant Detail ── */
+.selector-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 18px;
+}
+.selector-label { font-size: 12px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.detail-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 20px; color: var(--text-muted); gap: 12px; text-align: center;
+}
+.detail-empty i { font-size: 44px; opacity: 0.25; }
+.detail-empty p { font-size: 14px; }
+.detail-content { display: none; }
+.detail-content.show { display: block; }
+
+.detail-hero {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px;
+}
+.detail-avatar { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0; }
+.detail-info { flex: 1; }
+.detail-name { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-primary); }
+.detail-meta { font-size: 12.5px; color: var(--text-muted); font-family: monospace; margin-top: 2px; }
+.detail-badges { display: flex; gap: 6px; }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 16px; font-size: 13.5px; font-weight: 500;
+  color: var(--text-secondary); background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  cursor: pointer; transition: all var(--transition); font-family: var(--font);
+}
+.tab-btn i { font-size: 16px; }
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Info Grid ── */
+.info-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+.info-card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.info-card-value { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.info-card-value.mono { font-family: monospace; font-size: 12.5px; color: var(--text-secondary); }
+
+/* ── Progress Bars ── */
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-bg { flex: 1; height: 5px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.progress-fill.blue { background: var(--primary); }
+.progress-fill.green { background: var(--success); }
+.progress-fill.amber { background: var(--warning); }
+.progress-fill.red { background: var(--destructive); }
+.progress-pct { font-size: 11.5px; font-family: monospace; color: var(--text-muted); min-width: 34px; text-align: right; }
+
+/* ── Service Cards ── */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.service-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 14px 16px; position: relative; overflow: hidden;
+}
+.service-card-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px; }
+.service-card-accent.green { background: var(--success); }
+.service-card-accent.amber { background: var(--warning); }
+.service-card-accent.muted { background: var(--text-muted); }
+.service-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.service-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.service-type { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.service-meta { display: flex; flex-direction: column; gap: 4px; }
+.service-row { display: flex; justify-content: space-between; font-size: 12px; }
+.service-key { color: var(--text-muted); }
+.service-val { font-family: monospace; color: var(--text-secondary); }
+
+/* ── Alloc Cards ── */
+.alloc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+.alloc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+.alloc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.alloc-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-primary); }
+.alloc-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.alloc-bar-wrap { margin-top: 14px; }
+.alloc-bar-bg { height: 6px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; }
+.alloc-bar-fill { height: 100%; border-radius: 3px; }
+.alloc-bar-labels { display: flex; justify-content: space-between; font-size: 11px; font-family: monospace; color: var(--text-muted); margin-top: 5px; }
+
+/* ── Tag Chips ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-chip {
+  padding: 4px 10px; border-radius: 100px; font-size: 12px; font-weight: 500;
+  background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border);
+}
+
+/* ── Dot ── */
+.status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.status-dot.green { background: var(--success); box-shadow: 0 0 5px var(--success); }
+.status-dot.amber { background: var(--warning); }
+.status-dot.red { background: var(--destructive); }
+.status-dot.gray { background: var(--text-muted); }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 9999; box-shadow: var(--shadow-lg); max-width: 320px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast i { font-size: 18px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 10px; }
+
+/* ── Empty State ── */
+.empty-state { padding: 40px; text-align: center; color: var(--text-muted); }
+.empty-state i { font-size: 36px; display: block; margin-bottom: 10px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+/* ── Separator ── */
+.sep { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
+  .bento-card.featured { grid-column: span 1; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .alloc-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .lnav { padding: 0 16px; }
+  .lnav-links { display: none; }
+  .hero { padding: 60px 20px 50px; }
+  .features-section, .pricing-section { padding: 20px 20px 40px; }
+  .content { padding: 16px; }
+  .topbar { padding: 0 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .info-grid-3 { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .bento-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .slider-row { grid-template-columns: 70px 1fr 60px; }
+  .lnav-logo-text { font-size: 15px; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .login-card { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════════════ -->
+<div id="view-landing" class="active">
+<div class="landing">
+
+  <!-- Nav -->
+  <nav class="lnav">
+    <a class="lnav-logo" href="#">
+      <div class="lnav-logo-icon"><i class="ti ti-layers-intersect"></i></div>
+      <span class="lnav-logo-text">CloudAxis</span>
+    </a>
+    <div class="lnav-links">
+      <a class="lnav-link" href="#">Product</a>
+      <a class="lnav-link" href="#">Pricing</a>
+      <a class="lnav-link" href="#">Docs</a>
+      <a class="lnav-link" href="#">Blog</a>
+    </div>
+    <div class="lnav-actions">
+      <button class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()">
+        <i class="ti ti-moon" id="themeIcon"></i>
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="showView('login')">Sign In</button>
+      <button class="btn btn-primary btn-sm" onclick="showView('login')">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge"><i class="ti ti-bolt"></i> Now with AI-powered tenant insights</div>
+    <h1 class="hero-title">Multi-tenant cloud<br><span>management, simplified</span></h1>
+    <p class="hero-subtitle">Provision, monitor, and scale your SaaS tenants with full resource visibility — Docker images, services, allocations, and billing in one unified dashboard.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="showView('login')"><i class="ti ti-rocket"></i> Start for free</button>
+      <button class="btn btn-default" onclick="showView('login')"><i class="ti ti-play"></i> View demo</button>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Everything you need to manage tenants</h2>
+    <p class="section-sub">From provisioning to monitoring — one platform, zero complexity.</p>
+    <div class="bento-grid">
+      <div class="bento-card featured">
+        <div class="bento-icon blue"><i class="ti ti-building-skyscraper"></i></div>
+        <div class="bento-title">Tenant Provisioning</div>
+        <div class="bento-desc">Spin up fully isolated tenant environments in seconds. Configure plans, regions, billing cycles, and resource limits from a single workflow. Supports staging, production, and development environments out of the box.</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon green"><i class="ti ti-activity"></i></div>
+        <div class="bento-title">Real-time Monitoring</div>
+        <div class="bento-desc">CPU, memory, and storage usage tracked live with intelligent alerting when tenants approach their limits.</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon purple"><i class="ti ti-container"></i></div>
+        <div class="bento-title">Docker Registry</div>
+        <div class="bento-desc">Manage container images per tenant with pull history, status, and container counts at a glance.</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon amber"><i class="ti ti-server"></i></div>
+        <div class="bento-title">Service Management</div>
+        <div class="bento-desc">Track all microservices — uptime, version, port, and status — across every tenant in your fleet.</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon teal"><i class="ti ti-chart-pie"></i></div>
+        <div class="bento-title">Resource Allocation</div>
+        <div class="bento-desc">Visualise vCPU, memory, storage, and image quota utilisation with clear allocation summaries.</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon red"><i class="ti ti-shield-check"></i></div>
+        <div class="bento-title">Security & Compliance</div>
+        <div class="bento-desc">Isolated environments, role-based access control, and audit logs keep every tenant safe and compliant.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing-section">
+    <p class="section-label">Pricing</p>
+    <h2 class="section-title">Simple, transparent pricing</h2>
+    <p class="section-sub">No hidden fees. Scale as you grow.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-name">Starter</div>
+          <div class="pricing-price"><span class="pricing-amount">$49</span><span class="pricing-period">/mo</span></div>
+          <div class="pricing-desc">Perfect for small teams and early-stage SaaS products.</div>
+        </div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="ti ti-check"></i> Up to 5 tenants</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 4 vCPU / 8 GB RAM each</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 50 GB storage</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 3 Docker images</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Email support</div>
+        </div>
+        <button class="btn btn-outline" onclick="showView('login')" style="width:100%;justify-content:center">Get started</button>
+      </div>
+      <div class="pricing-card popular">
+        <div class="pricing-popular-badge">Most popular</div>
+        <div>
+          <div class="pricing-name">Pro</div>
+          <div class="pricing-price"><span class="pricing-amount">$149</span><span class="pricing-period">/mo</span></div>
+          <div class="pricing-desc">For growing teams with production workloads and multiple tenants.</div>
+        </div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="ti ti-check"></i> Up to 25 tenants</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 16 vCPU / 64 GB RAM each</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 500 GB storage</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 10 Docker images</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Priority support</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Multi-region</div>
+        </div>
+        <button class="btn btn-primary" onclick="showView('login')" style="width:100%;justify-content:center">Get started</button>
+      </div>
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-name">Enterprise</div>
+          <div class="pricing-price"><span class="pricing-amount">Custom</span></div>
+          <div class="pricing-desc">Unlimited scale, dedicated infrastructure, and SLA guarantees.</div>
+        </div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="ti ti-check"></i> Unlimited tenants</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Custom vCPU / RAM</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Unlimited storage</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Unlimited images</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> Dedicated success manager</div>
+          <div class="pricing-feature"><i class="ti ti-check"></i> 99.99% SLA</div>
+        </div>
+        <button class="btn btn-outline" onclick="showView('login')" style="width:100%;justify-content:center">Contact sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="lnav-logo-icon" style="width:24px;height:24px;border-radius:6px;font-size:12px"><i class="ti ti-layers-intersect"></i></div>
+      <span style="font-weight:600;font-size:13px">CloudAxis</span>
+    </div>
+    <span>© 2025 CloudAxis Inc. All rights reserved.</span>
+    <div style="display:flex;gap:16px">
+      <a href="#" style="color:var(--text-muted);text-decoration:none;font-size:13px">Privacy</a>
+      <a href="#" style="color:var(--text-muted);text-decoration:none;font-size:13px">Terms</a>
+      <a href="#" style="color:var(--text-muted);text-decoration:none;font-size:13px">Status</a>
+    </div>
+  </footer>
+
+</div><!-- /landing -->
+</div><!-- /view-landing -->
+
+<!-- ═══════════════════════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════════════════════ -->
+<div id="view-login">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <div class="login-logo-icon"><i class="ti ti-layers-intersect"></i></div>
+        <span class="login-logo-text">CloudAxis</span>
+      </div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-subtitle">Sign in to your workspace</div>
+    </div>
+
+    <div class="login-error" id="loginError">
+      <i class="ti ti-alert-circle"></i>
+      <span>Invalid username or password. Try <strong>user</strong> / <strong>user123</strong></span>
+    </div>
+
+    <div class="login-fields">
+      <div class="input-group">
+        <label class="label" for="loginUser">Username</label>
+        <input class="input" type="text" id="loginUser" placeholder="Enter your username" autocomplete="username" />
+      </div>
+      <div class="input-group">
+        <label class="label" for="loginPass">Password</label>
+        <input class="input" type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">
+        <i class="ti ti-arrow-right"></i> Sign in
+      </button>
+    </div>
+
+    <div class="login-footer-text">
+      <span style="color:var(--text-muted)">← </span>
+      <a href="#" onclick="showView('landing');return false;" style="color:var(--primary);text-decoration:none;font-weight:500">Back to home</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="#" style="color:var(--primary);text-decoration:none;font-weight:500">Forgot password?</a>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="margin:0 auto">
+        <i class="ti ti-moon" id="themeIcon2"></i> Toggle theme
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     APP
+══════════════════════════════════════════════════ -->
+<div id="view-app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><i class="ti ti-layers-intersect"></i></div>
+      <span class="sidebar-logo-text">CloudAxis</span>
+      <span class="sidebar-logo-badge" style="margin-left:auto">SaaS</span>
+    </div>
+
+    <div class="sidebar-body">
+      <div class="nav-section">
+        <div class="nav-section-label">Workspace</div>
+        <button class="nav-item active" id="nav-tenants" onclick="navigateTo('tenants')">
+          <i class="ti ti-building-skyscraper"></i> Tenants
+          <span class="nav-badge">6</span>
+        </button>
+        <button class="nav-item" id="nav-create" onclick="navigateTo('create')">
+          <i class="ti ti-circle-plus"></i> Create Tenant
+        </button>
+        <button class="nav-item" id="nav-detail" onclick="navigateTo('detail')">
+          <i class="ti ti-layout-dashboard"></i> Tenant Detail
+        </button>
+      </div>
+      <div class="nav-section" style="margin-top:8px">
+        <div class="nav-section-label">Platform</div>
+        <button class="nav-item" onclick="showToast('Docker Registry coming soon')">
+          <i class="ti ti-container"></i> Docker Registry
+        </button>
+        <button class="nav-item" onclick="showToast('Monitoring coming soon')">
+          <i class="ti ti-activity"></i> Monitoring
+        </button>
+        <button class="nav-item" onclick="showToast('Security coming soon')">
+          <i class="ti ti-shield-check"></i> Security
+        </button>
+        <button class="nav-item" onclick="showToast('API Keys coming soon')">
+          <i class="ti ti-key"></i> API Keys
+        </button>
+      </div>
+      <div class="nav-section" style="margin-top:8px">
+        <div class="nav-section-label">Admin</div>
+        <button class="nav-item" onclick="showToast('Users coming soon')">
+          <i class="ti ti-users"></i> Users
+        </button>
+        <button class="nav-item" onclick="showToast('Settings coming soon')">
+          <i class="ti ti-settings"></i> Settings
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">U</div>
+        <div>
+          <div class="user-name">user</div>
+          <div class="user-email">admin@cloudaxis.io</div>
+        </div>
+        <i class="ti ti-chevron-up-down user-chevron"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <span class="topbar-crumb">CloudAxis</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-crumb current" id="topbarTitle">Tenants</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">
+          <i class="ti ti-moon" id="themeIconApp"></i>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="showToast('No new notifications')">
+          <i class="ti ti-bell"></i>
+        </button>
+        <div style="width:1px;height:20px;background:var(--border);"></div>
+        <button class="btn btn-primary btn-sm" onclick="navigateTo('create')">
+          <i class="ti ti-plus"></i> New Tenant
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">
+          <i class="ti ti-logout"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ Page: Tenants List ══ -->
+      <div class="page active" id="page-tenants">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Tenant Management</div>
+            <div class="page-subtitle">Manage all tenants, plans, and cloud resource allocations</div>
+          </div>
+          <button class="btn btn-primary" onclick="navigateTo('create')"><i class="ti ti-plus"></i> New Tenant</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-top-bar blue"></div>
+            <i class="ti ti-building-skyscraper stat-icon"></i>
+            <div class="stat-label">Total Tenants</div>
+            <div class="stat-value" id="stat-total">6</div>
+            <div class="stat-delta"><span class="up">↑ 2</span> this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar green"></div>
+            <i class="ti ti-circle-check stat-icon"></i>
+            <div class="stat-label">Active</div>
+            <div class="stat-value" id="stat-active">4</div>
+            <div class="stat-delta">66% of total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar amber"></div>
+            <i class="ti ti-container stat-icon"></i>
+            <div class="stat-label">Docker Images</div>
+            <div class="stat-value">24</div>
+            <div class="stat-delta">across all tenants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar purple"></div>
+            <i class="ti ti-server stat-icon"></i>
+            <div class="stat-label">Services Running</div>
+            <div class="stat-value">67</div>
+            <div class="stat-delta"><span class="down">3</span> need attention</div>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <i class="ti ti-search"></i>
+            <input class="input" type="text" placeholder="Search tenants…" id="searchInput" oninput="filterTenants()" />
+          </div>
+          <select class="input select filter-select" id="statusFilter" onchange="filterTenants()" style="width:auto">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <select class="input select filter-select" id="planFilter" onchange="filterTenants()" style="width:auto">
+            <option value="">All Plans</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="filterTenants()">
+            <i class="ti ti-refresh"></i>
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Tenant</th>
+                <th>Status</th>
+                <th>Plan</th>
+                <th>Images</th>
+                <th>Services</th>
+                <th>Region</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tenantRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ Page: Create Tenant ══ -->
+      <div class="page" id="page-create">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Create Tenant</div>
+            <div class="page-subtitle">Provision a new tenant with cloud resource allocation</div>
+          </div>
+          <button class="btn btn-ghost" onclick="navigateTo('tenants')"><i class="ti ti-arrow-left"></i> Back</button>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-icon bento-icon blue"><i class="ti ti-building"></i></div>
+            <span class="section-card-title">Basic Information</span>
+          </div>
+          <div class="form-grid">
+            <div class="input-group">
+              <label class="label" for="f-name">Tenant Name <span style="color:var(--destructive)">*</span></label>
+              <input class="input" type="text" id="f-name" placeholder="Acme Corporation" />
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-subdomain">Subdomain <span style="color:var(--destructive)">*</span></label>
+              <input class="input" type="text" id="f-subdomain" placeholder="acme" />
+              <span class="input-hint">Will be used as acme.cloudaxis.io</span>
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-email">Admin Email <span style="color:var(--destructive)">*</span></label>
+              <input class="input" type="email" id="f-email" placeholder="admin@acme.com" />
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-phone">Contact Phone</label>
+              <input class="input" type="text" id="f-phone" placeholder="+1 (555) 000-0000" />
+            </div>
+            <div class="input-group full">
+              <label class="label" for="f-desc">Description</label>
+              <textarea class="input" id="f-desc" placeholder="Brief description of this tenant…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-icon bento-icon purple"><i class="ti ti-settings-2"></i></div>
+            <span class="section-card-title">Plan & Configuration</span>
+          </div>
+          <div class="form-grid">
+            <div class="input-group">
+              <label class="label" for="f-plan">Plan <span style="color:var(--destructive)">*</span></label>
+              <select class="input select" id="f-plan">
+                <option value="starter">Starter</option>
+                <option value="pro" selected>Pro</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-region">Cloud Region <span style="color:var(--destructive)">*</span></label>
+              <select class="input select" id="f-region">
+                <option>us-east-1 (N. Virginia)</option>
+                <option>us-west-2 (Oregon)</option>
+                <option>eu-west-1 (Ireland)</option>
+                <option>ap-south-1 (Mumbai)</option>
+                <option>ap-southeast-1 (Singapore)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-billing">Billing Cycle</label>
+              <select class="input select" id="f-billing">
+                <option>Monthly</option>
+                <option>Annual</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="label" for="f-env">Environment</label>
+              <select class="input select" id="f-env">
+                <option>Production</option>
+                <option>Staging</option>
+                <option>Development</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-icon bento-icon amber"><i class="ti ti-cpu"></i></div>
+            <span class="section-card-title">Resource Allocation</span>
+          </div>
+          <div class="slider-rows">
+            <div class="slider-row">
+              <span class="slider-label">vCPU</span>
+              <input type="range" min="1" max="64" value="8" oninput="updateSlider(this,'cpu-val',v=>v+' cores')" />
+              <span class="slider-val" id="cpu-val">8 cores</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Memory</span>
+              <input type="range" min="1" max="256" value="16" oninput="updateSlider(this,'mem-val',v=>v+' GB')" />
+              <span class="slider-val" id="mem-val">16 GB</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Storage</span>
+              <input type="range" min="10" max="2000" step="10" value="100" oninput="updateSlider(this,'sto-val',v=>v+' GB')" />
+              <span class="slider-val" id="sto-val">100 GB</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Images</span>
+              <input type="range" min="1" max="50" value="10" oninput="updateSlider(this,'img-val',v=>v+' images')" />
+              <span class="slider-val" id="img-val">10 images</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-icon bento-icon teal"><i class="ti ti-puzzle"></i></div>
+            <span class="section-card-title">Enabled Services</span>
+          </div>
+          <div class="toggle-group">
+            <span class="toggle-pill selected" onclick="this.classList.toggle('selected')">API Gateway</span>
+            <span class="toggle-pill selected" onclick="this.classList.toggle('selected')">PostgreSQL</span>
+            <span class="toggle-pill selected" onclick="this.classList.toggle('selected')">Redis Cache</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">Kafka</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">Elasticsearch</span>
+            <span class="toggle-pill selected" onclick="this.classList.toggle('selected')">S3 Storage</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">CDN</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">ML Pipeline</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">Grafana</span>
+            <span class="toggle-pill" onclick="this.classList.toggle('selected')">Prometheus</span>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-icon bento-icon green"><i class="ti ti-tag"></i></div>
+            <span class="section-card-title">Tags & Labels</span>
+          </div>
+          <div class="input-group">
+            <label class="label" for="f-tags">Tags</label>
+            <input class="input" type="text" id="f-tags" placeholder="e.g. production, fintech, enterprise" />
+            <span class="input-hint">Separate multiple tags with commas</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-default" onclick="navigateTo('tenants')">Cancel</button>
+          <button class="btn btn-primary" onclick="createTenant()"><i class="ti ti-circle-check"></i> Provision Tenant</button>
+        </div>
+      </div>
+
+      <!-- ══ Page: Tenant Detail ══ -->
+      <div class="page" id="page-detail">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Tenant Detail</div>
+            <div class="page-subtitle">Deep-dive into tenant resources, images, and services</div>
+          </div>
+        </div>
+
+        <div class="selector-bar">
+          <span class="selector-label">Select Tenant</span>
+          <select class="input select" id="tenantSelect" onchange="loadTenantDetail(this.value)" style="max-width:320px">
+            <option value="">— Choose a tenant —</option>
+          </select>
+          <button class="btn btn-default btn-sm" onclick="refreshDetail()"><i class="ti ti-refresh"></i> Refresh</button>
+          <div style="margin-left:auto;display:flex;gap:6px" id="headerBadges"></div>
+        </div>
+
+        <div class="detail-empty" id="detailEmpty">
+          <i class="ti ti-building-skyscraper"></i>
+          <p>Select a tenant from the dropdown above to view details</p>
+        </div>
+
+        <div class="detail-content" id="detailContent">
+          <div class="detail-hero" id="detailHero"></div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('overview',this)"><i class="ti ti-layout-dashboard"></i> Overview</button>
+            <button class="tab-btn" onclick="switchTab('images',this)"><i class="ti ti-container"></i> Docker Images</button>
+            <button class="tab-btn" onclick="switchTab('services',this)"><i class="ti ti-server"></i> Services</button>
+            <button class="tab-btn" onclick="switchTab('allocation',this)"><i class="ti ti-chart-pie"></i> Allocation</button>
+          </div>
+
+          <div class="tab-panel active" id="tab-overview">
+            <div class="info-grid-3" id="overviewCards"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="section-card" style="margin-bottom:0">
+                <div class="section-card-header" style="margin-bottom:14px;padding-bottom:10px">
+                  <span class="section-card-title">Quick Stats</span>
+                </div>
+                <div id="quickStats"></div>
+              </div>
+              <div class="section-card" style="margin-bottom:0">
+                <div class="section-card-header" style="margin-bottom:14px;padding-bottom:10px">
+                  <span class="section-card-title">Tags</span>
+                </div>
+                <div class="tag-list" id="tagList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-images">
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Image Name</th><th>Tag</th><th>Status</th>
+                    <th>Containers</th><th>CPU Usage</th><th>Memory</th><th>Size</th><th>Pulled</th>
+                  </tr>
+                </thead>
+                <tbody id="imagesBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-services">
+            <div class="services-grid" id="servicesGrid"></div>
+          </div>
+
+          <div class="tab-panel" id="tab-allocation">
+            <div class="alloc-grid" id="allocCards"></div>
+            <div class="section-card">
+              <div class="section-card-header" style="margin-bottom:14px;padding-bottom:10px">
+                <span class="section-card-title">Resource Summary</span>
+              </div>
+              <div id="allocSummary"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /view-app -->
+
+<div id="toast"><i class="ti ti-circle-check" id="toastIcon"></i> <span id="toastMsg"></span></div>
+
+<script>
+// ══ Theme ══════════════════════════════════════════════════════════════
+function getTheme() { return document.documentElement.getAttribute('data-theme') || 'dark'; }
+function toggleTheme() {
+  const t = getTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('ca-theme', t);
+  updateThemeIcons(t);
+}
+function updateThemeIcons(t) {
+  const icon = t === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+  ['themeIcon','themeIcon2','themeIconApp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = icon;
+  });
+}
+(function() {
+  const saved = localStorage.getItem('ca-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcons(saved);
+})();
+
+// ══ Views ══════════════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+}
+
+// ══ Auth ══════════════════════════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const err = document.getElementById('loginError');
+  if (u === 'user' && p === 'user123') {
+    err.style.display = 'none';
+    showView('app');
+    renderTenantTable(tenants);
+    refreshTenantSelect();
+  } else {
+    err.style.display = 'flex';
+    document.getElementById('loginUser').focus();
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('view-login').classList.contains('active')) {
+    doLogin();
+  }
+});
+function doLogout() {
+  showView('landing');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// ══ Navigation ═════════════════════════════════════════════════════════
+const pageTitles = { tenants: 'Tenants', create: 'Create Tenant', detail: 'Tenant Detail' };
+function navigateTo(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageTitles[name] || name;
+}
+
+// ══ Data ═══════════════════════════════════════════════════════════════
+const COLORS = [
+  { bg:'rgba(79,142,247,0.15)', color:'#4f8ef7' },
+  { bg:'rgba(34,197,94,0.1)',   color:'#22c55e' },
+  { bg:'rgba(167,139,250,0.1)', color:'#a78bfa' },
+  { bg:'rgba(45,212,191,0.1)',  color:'#2dd4bf' },
+  { bg:'rgba(245,158,11,0.1)',  color:'#f59e0b' },
+  { bg:'rgba(239,68,68,0.1)',   color:'#ef4444' },
+];
+let tenants = [
+  {
+    id:'tnx-001',name:'Acme Corp',subdomain:'acme',email:'admin@acme.com',
+    status:'active',plan:'enterprise',region:'us-east-1',env:'Production',
+    created:'2024-01-15',billing:'Annual',description:'Global enterprise client in fintech sector.',
+    tags:['fintech','enterprise','production','us-region'],colorIdx:0,
+    resources:{cpu:32,cpuUsed:22,mem:128,memUsed:87,storage:1000,storageUsed:650,maxImages:20},
+    images:[
+      {name:'nginx',tag:'1.25-alpine',status:'running',containers:4,cpu:12,mem:'256 MB',size:'23 MB',pulled:'2 days ago'},
+      {name:'node-api',tag:'18.17.0',status:'running',containers:8,cpu:34,mem:'1.2 GB',size:'380 MB',pulled:'5 hours ago'},
+      {name:'postgres',tag:'15.4',status:'running',containers:2,cpu:18,mem:'2.1 GB',size:'412 MB',pulled:'7 days ago'},
+      {name:'redis',tag:'7.2-alpine',status:'running',containers:2,cpu:5,mem:'128 MB',size:'16 MB',pulled:'3 days ago'},
+      {name:'kafka',tag:'3.6.0',status:'warning',containers:3,cpu:45,mem:'3.4 GB',size:'650 MB',pulled:'1 day ago'},
+      {name:'elasticsearch',tag:'8.11.0',status:'running',containers:2,cpu:28,mem:'4.2 GB',size:'890 MB',pulled:'2 days ago'},
+    ],
+    services:[
+      {name:'API Gateway',type:'Networking',status:'running',port:'8080',uptime:'99.98%',version:'v3.2.1'},
+      {name:'Auth Service',type:'Security',status:'running',port:'9000',uptime:'100%',version:'v1.8.4'},
+      {name:'PostgreSQL',type:'Database',status:'running',port:'5432',uptime:'99.95%',version:'15.4'},
+      {name:'Redis Cache',type:'Cache',status:'running',port:'6379',uptime:'99.99%',version:'7.2'},
+      {name:'Kafka Broker',type:'Messaging',status:'warning',port:'9092',uptime:'97.2%',version:'3.6.0'},
+      {name:'Elasticsearch',type:'Search',status:'running',port:'9200',uptime:'99.7%',version:'8.11'},
+      {name:'S3 Connector',type:'Storage',status:'running',port:'—',uptime:'100%',version:'v2.0'},
+      {name:'Grafana',type:'Monitoring',status:'running',port:'3000',uptime:'99.5%',version:'10.2'},
+    ],
+  },
+  {
+    id:'tnx-002',name:'NovaTech Ltd',subdomain:'novatech',email:'ops@novatech.io',
+    status:'active',plan:'pro',region:'eu-west-1',env:'Production',
+    created:'2024-03-08',billing:'Monthly',description:'B2B SaaS startup in logistics space.',
+    tags:['logistics','startup','europe'],colorIdx:1,
+    resources:{cpu:16,cpuUsed:9,mem:64,memUsed:31,storage:500,storageUsed:210,maxImages:10},
+    images:[
+      {name:'react-frontend',tag:'3.1.0',status:'running',containers:2,cpu:8,mem:'512 MB',size:'180 MB',pulled:'1 day ago'},
+      {name:'go-backend',tag:'1.21',status:'running',containers:4,cpu:22,mem:'768 MB',size:'95 MB',pulled:'3 days ago'},
+      {name:'mysql',tag:'8.0',status:'running',containers:1,cpu:15,mem:'1.8 GB',size:'520 MB',pulled:'6 days ago'},
+      {name:'rabbitmq',tag:'3.12',status:'running',containers:1,cpu:6,mem:'256 MB',size:'210 MB',pulled:'2 days ago'},
+    ],
+    services:[
+      {name:'Load Balancer',type:'Networking',status:'running',port:'80/443',uptime:'99.9%',version:'HAProxy 2.8'},
+      {name:'Go API',type:'Backend',status:'running',port:'8000',uptime:'99.6%',version:'1.21'},
+      {name:'MySQL',type:'Database',status:'running',port:'3306',uptime:'99.9%',version:'8.0'},
+      {name:'RabbitMQ',type:'Messaging',status:'running',port:'5672',uptime:'99.4%',version:'3.12'},
+      {name:'S3 Storage',type:'Storage',status:'running',port:'—',uptime:'100%',version:'v2'},
+    ],
+  },
+  {
+    id:'tnx-003',name:'HelixAI',subdomain:'helixai',email:'infra@helixai.com',
+    status:'active',plan:'enterprise',region:'us-west-2',env:'Production',
+    created:'2024-02-22',billing:'Annual',description:'AI/ML platform for enterprise data teams.',
+    tags:['ai','ml','enterprise','gpu-enabled'],colorIdx:2,
+    resources:{cpu:64,cpuUsed:51,mem:256,memUsed:198,storage:2000,storageUsed:1340,maxImages:25},
+    images:[
+      {name:'pytorch',tag:'2.1-cuda12',status:'running',containers:4,cpu:82,mem:'12 GB',size:'4.1 GB',pulled:'4 hours ago'},
+      {name:'jupyter-hub',tag:'4.0.2',status:'running',containers:6,cpu:24,mem:'2.4 GB',size:'1.2 GB',pulled:'2 days ago'},
+      {name:'mlflow',tag:'2.9.2',status:'running',containers:2,cpu:12,mem:'1.1 GB',size:'480 MB',pulled:'3 days ago'},
+      {name:'ray-cluster',tag:'2.8.0',status:'warning',containers:8,cpu:67,mem:'8.5 GB',size:'2.2 GB',pulled:'1 day ago'},
+      {name:'feast',tag:'0.37.0',status:'running',containers:2,cpu:9,mem:'512 MB',size:'340 MB',pulled:'5 days ago'},
+      {name:'minio',tag:'RELEASE.latest',status:'running',containers:1,cpu:4,mem:'256 MB',size:'160 MB',pulled:'1 week ago'},
+      {name:'grafana',tag:'10.2.0',status:'running',containers:1,cpu:3,mem:'180 MB',size:'280 MB',pulled:'5 days ago'},
+    ],
+    services:[
+      {name:'Model Serving',type:'ML Inference',status:'running',port:'8501',uptime:'99.2%',version:'TorchServe 0.9'},
+      {name:'JupyterHub',type:'Compute',status:'running',port:'8000',uptime:'98.8%',version:'4.0.2'},
+      {name:'MLflow',type:'ML Tracking',status:'running',port:'5000',uptime:'99.5%',version:'2.9.2'},
+      {name:'Ray Cluster',type:'Distributed',status:'warning',port:'8265',uptime:'95.1%',version:'2.8.0'},
+      {name:'MinIO',type:'Object Store',status:'running',port:'9000',uptime:'99.9%',version:'Latest'},
+      {name:'Prometheus',type:'Monitoring',status:'running',port:'9090',uptime:'99.7%',version:'2.48'},
+      {name:'Grafana',type:'Visualization',status:'running',port:'3000',uptime:'99.4%',version:'10.2.0'},
+    ],
+  },
+  {
+    id:'tnx-004',name:'Zephyr Commerce',subdomain:'zephyr',email:'admin@zephyr.shop',
+    status:'suspended',plan:'pro',region:'ap-south-1',env:'Production',
+    created:'2024-04-01',billing:'Monthly',description:'E-commerce platform for South Asian markets.',
+    tags:['ecommerce','asia-pacific','b2c'],colorIdx:4,
+    resources:{cpu:16,cpuUsed:2,mem:64,memUsed:4,storage:500,storageUsed:180,maxImages:10},
+    images:[
+      {name:'shopify-proxy',tag:'2.0.1',status:'stopped',containers:0,cpu:0,mem:'—',size:'95 MB',pulled:'2 weeks ago'},
+      {name:'payment-svc',tag:'1.5.0',status:'stopped',containers:0,cpu:0,mem:'—',size:'120 MB',pulled:'2 weeks ago'},
+    ],
+    services:[
+      {name:'API Gateway',type:'Networking',status:'stopped',port:'8080',uptime:'0%',version:'v2.1'},
+      {name:'Payment Service',type:'Payments',status:'stopped',port:'9001',uptime:'0%',version:'1.5.0'},
+    ],
+  },
+  {
+    id:'tnx-005',name:'DataStream Inc',subdomain:'datastream',email:'devops@datastream.co',
+    status:'active',plan:'pro',region:'us-east-1',env:'Staging',
+    created:'2024-05-14',billing:'Monthly',description:'Real-time data streaming and analytics platform.',
+    tags:['analytics','streaming','staging'],colorIdx:3,
+    resources:{cpu:16,cpuUsed:7,mem:32,memUsed:14,storage:200,storageUsed:55,maxImages:8},
+    images:[
+      {name:'apache-flink',tag:'1.18.0',status:'running',containers:3,cpu:38,mem:'3.2 GB',size:'780 MB',pulled:'3 days ago'},
+      {name:'kafka',tag:'3.6.0',status:'running',containers:1,cpu:21,mem:'1.4 GB',size:'650 MB',pulled:'1 week ago'},
+      {name:'clickhouse',tag:'23.11',status:'running',containers:1,cpu:15,mem:'2.1 GB',size:'590 MB',pulled:'4 days ago'},
+    ],
+    services:[
+      {name:'Flink Cluster',type:'Streaming',status:'running',port:'8081',uptime:'99.1%',version:'1.18.0'},
+      {name:'Kafka',type:'Messaging',status:'running',port:'9092',uptime:'99.3%',version:'3.6.0'},
+      {name:'ClickHouse',type:'Analytics DB',status:'running',port:'8123',uptime:'98.9%',version:'23.11'},
+    ],
+  },
+  {
+    id:'tnx-006',name:'BetaWave',subdomain:'betawave',email:'hello@betawave.dev',
+    status:'inactive',plan:'starter',region:'eu-west-1',env:'Development',
+    created:'2024-06-01',billing:'Monthly',description:'Early-stage startup in developer tooling.',
+    tags:['startup','dev-tools','trial'],colorIdx:5,
+    resources:{cpu:4,cpuUsed:0,mem:8,memUsed:0,storage:50,storageUsed:2,maxImages:3},
+    images:[
+      {name:'node',tag:'20-alpine',status:'stopped',containers:0,cpu:0,mem:'—',size:'55 MB',pulled:'3 weeks ago'},
+    ],
+    services:[
+      {name:'Node Server',type:'Backend',status:'stopped',port:'3000',uptime:'0%',version:'20'},
+    ],
+  },
+];
+
+// ══ Tenant Table ════════════════════════════════════════════════════════
+function renderTenantTable(list) {
+  const tbody = document.getElementById('tenantRows');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-search"></i><p>No tenants match your filters</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(t => {
+    const c = COLORS[t.colorIdx];
+    const initials = t.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const runSvcs = t.services.filter(s=>s.status==='running').length;
+    return `<tr onclick="goDetail('${t.id}')">
+      <td>
+        <div class="tenant-cell">
+          <div class="tenant-avatar" style="background:${c.bg};color:${c.color}">${initials}</div>
+          <div>
+            <div class="tenant-name">${t.name}</div>
+            <div class="tenant-sub">${t.subdomain}.cloudaxis.io</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-${t.status}"><span class="badge-dot"></span>${t.status}</span></td>
+      <td><span class="badge badge-${t.plan}">${t.plan}</span></td>
+      <td class="td-mono">${t.images.length} / ${t.resources.maxImages}</td>
+      <td class="td-mono">${runSvcs} running</td>
+      <td class="td-mono">${t.region}</td>
+      <td style="color:var(--text-secondary);font-size:13px">${formatDate(t.created)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" onclick="event.stopPropagation();goDetail('${t.id}')" title="View detail"><i class="ti ti-eye"></i></button>
+          <button class="icon-btn" onclick="event.stopPropagation();showToast('Edit coming soon')" title="Edit"><i class="ti ti-edit"></i></button>
+          <button class="icon-btn" onclick="event.stopPropagation();showToast('Deleted (demo only)','warn')" title="Delete" style="color:var(--destructive)"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTenants() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const st = document.getElementById('statusFilter').value;
+  const pl = document.getElementById('planFilter').value;
+  const filtered = tenants.filter(t => {
+    const matchQ = !q || t.name.toLowerCase().includes(q) || t.subdomain.includes(q) || t.id.includes(q);
+    const matchS = !st || t.status === st;
+    const matchP = !pl || t.plan === pl;
+    return matchQ && matchS && matchP;
+  });
+  document.getElementById('stat-total').textContent = filtered.length;
+  document.getElementById('stat-active').textContent = filtered.filter(t=>t.status==='active').length;
+  renderTenantTable(filtered);
+}
+
+function goDetail(id) {
+  navigateTo('detail');
+  document.getElementById('tenantSelect').value = id;
+  loadTenantDetail(id);
+}
+
+function refreshTenantSelect() {
+  const sel = document.getElementById('tenantSelect');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose a tenant —</option>' +
+    tenants.map(t => `<option value="${t.id}">${t.name} (${t.id})</option>`).join('');
+  sel.value = cur;
+}
+
+// ══ Tenant Detail ═══════════════════════════════════════════════════════
+function loadTenantDetail(id) {
+  const empty = document.getElementById('detailEmpty');
+  const content = document.getElementById('detailContent');
+  if (!id) { empty.style.display='flex'; content.classList.remove('show'); document.getElementById('headerBadges').innerHTML=''; return; }
+  const t = tenants.find(x=>x.id===id);
+  if (!t) return;
+  empty.style.display='none';
+  content.classList.add('show');
+
+  const c = COLORS[t.colorIdx];
+  const initials = t.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+  document.getElementById('headerBadges').innerHTML =
+    `<span class="badge badge-${t.status}"><span class="badge-dot"></span>${t.status}</span>
+     <span class="badge badge-${t.plan}">${t.plan}</span>`;
+
+  document.getElementById('detailHero').innerHTML = `
+    <div class="detail-avatar" style="background:${c.bg};color:${c.color}">${initials}</div>
+    <div class="detail-info">
+      <div class="detail-name">${t.name}</div>
+      <div class="detail-meta">${t.id} · ${t.region} · ${t.env}</div>
+    </div>
+    <div class="detail-badges">
+      <span class="badge badge-${t.status}"><span class="badge-dot"></span>${t.status}</span>
+      <span class="badge badge-${t.plan}">${t.plan}</span>
+      <button class="btn btn-default btn-sm" onclick="showToast('Edit coming soon')"><i class="ti ti-edit"></i> Edit</button>
+    </div>`;
+
+  renderOverview(t, c);
+  renderImages(t);
+  renderServices(t);
+  renderAllocation(t, c);
+}
+
+function renderOverview(t, c) {
+  const cards = [
+    {label:'Tenant ID', value:t.id, mono:true},
+    {label:'Region', value:t.region, mono:true},
+    {label:'Environment', value:t.env},
+    {label:'Admin Email', value:t.email, mono:true},
+    {label:'Billing', value:t.billing},
+    {label:'Created', value:formatDate(t.created)},
+  ];
+  document.getElementById('overviewCards').innerHTML = cards.map(card =>
+    `<div class="info-card">
+      <div class="info-card-label">${card.label}</div>
+      <div class="info-card-value ${card.mono?'mono':''}">${card.value}</div>
+    </div>`
+  ).join('');
+
+  const r = t.resources;
+  const cpuPct = r.cpu ? Math.round(r.cpuUsed/r.cpu*100) : 0;
+  const memPct = r.mem ? Math.round(r.memUsed/r.mem*100) : 0;
+  const stoPct = r.storage ? Math.round(r.storageUsed/r.storage*100) : 0;
+
+  document.getElementById('quickStats').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      ${miniBar('CPU', r.cpuUsed+' / '+r.cpu+' cores', cpuPct)}
+      ${miniBar('Memory', r.memUsed+' / '+r.mem+' GB', memPct)}
+      ${miniBar('Storage', r.storageUsed+' / '+r.storage+' GB', stoPct)}
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:2px">
+        <span style="color:var(--text-muted)">Docker Images</span>
+        <span style="font-family:monospace;color:var(--text-primary)">${t.images.length} / ${r.maxImages}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px">
+        <span style="color:var(--text-muted)">Services Running</span>
+        <span style="font-family:monospace;color:var(--success)">${t.services.filter(s=>s.status==='running').length} / ${t.services.length}</span>
+      </div>
+    </div>`;
+
+  document.getElementById('tagList').innerHTML = t.tags.length
+    ? t.tags.map(tag=>`<span class="tag-chip">${tag}</span>`).join('')
+    : '<span style="color:var(--text-muted);font-size:12px">No tags</span>';
+}
+
+function miniBar(label, text, pct) {
+  const cls = pct>85?'red':pct>65?'amber':'green';
+  return `<div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+      <span style="color:var(--text-muted)">${label}</span>
+      <span style="font-family:monospace;color:var(--text-secondary)">${text} <span style="color:var(--text-muted)">(${pct}%)</span></span>
+    </div>
+    <div class="progress-bg"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+function renderImages(t) {
+  const tbody = document.getElementById('imagesBody');
+  if (!t.images.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-container"></i><p>No docker images</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = t.images.map(img => {
+    const cpuCls = img.cpu>75?'red':img.cpu>50?'amber':'green';
+    const statusBadge = img.status==='running'?'badge-running':img.status==='warning'?'badge-warning':'badge-stopped';
+    const dotCls = img.status==='running'?'green':img.status==='warning'?'amber':'gray';
+    return `<tr>
+      <td style="font-family:monospace;font-size:12.5px;color:var(--primary)">${img.name}</td>
+      <td><span style="display:inline-block;padding:2px 7px;background:var(--bg-elevated);border-radius:4px;font-family:monospace;font-size:11px;color:var(--text-secondary);border:1px solid var(--border)">${img.tag}</span></td>
+      <td><span class="badge ${statusBadge}" style="font-size:11.5px"><span class="status-dot ${dotCls}"></span>${img.status}</span></td>
+      <td class="td-mono">${img.containers}</td>
+      <td>
+        <div class="progress-wrap">
+          <div class="progress-bg"><div class="progress-fill ${cpuCls}" style="width:${img.cpu}%"></div></div>
+          <span class="progress-pct">${img.cpu}%</span>
+        </div>
+      </td>
+      <td class="td-mono">${img.mem}</td>
+      <td class="td-mono">${img.size}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${img.pulled}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderServices(t) {
+  const grid = document.getElementById('servicesGrid');
+  if (!t.services.length) {
+    grid.innerHTML='<div class="empty-state"><i class="ti ti-server"></i><p>No services</p></div>';
+    return;
+  }
+  grid.innerHTML = t.services.map(svc => {
+    const accentCls = svc.status==='running'?'green':svc.status==='warning'?'amber':'muted';
+    const badgeCls = svc.status==='running'?'badge-running':svc.status==='warning'?'badge-warning':'badge-stopped';
+    return `<div class="service-card">
+      <div class="service-card-accent ${accentCls}"></div>
+      <div style="padding-left:8px">
+        <div class="service-top">
+          <div>
+            <div class="service-name">${svc.name}</div>
+            <div class="service-type">${svc.type}</div>
+          </div>
+          <span class="badge ${badgeCls}" style="font-size:11px">${svc.status}</span>
+        </div>
+        <div class="service-meta">
+          <div class="service-row"><span class="service-key">Port</span><span class="service-val">${svc.port}</span></div>
+          <div class="service-row"><span class="service-key">Uptime</span><span class="service-val">${svc.uptime}</span></div>
+          <div class="service-row"><span class="service-key">Version</span><span class="service-val">${svc.version}</span></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAllocation(t, c) {
+  const r = t.resources;
+  const cpuPct = r.cpu ? Math.round(r.cpuUsed/r.cpu*100) : 0;
+  const memPct = r.mem ? Math.round(r.memUsed/r.mem*100) : 0;
+  const stoPct = r.storage ? Math.round(r.storageUsed/r.storage*100) : 0;
+  const imgPct = r.maxImages ? Math.round(t.images.length/r.maxImages*100) : 0;
+
+  const cards = [
+    {label:'vCPU Allocation',value:r.cpu+' cores',sub:r.cpuUsed+' cores used',pct:cpuPct,from:'0',to:r.cpu+' cores'},
+    {label:'Memory Allocation',value:r.mem+' GB',sub:r.memUsed+' GB used',pct:memPct,from:'0',to:r.mem+' GB'},
+    {label:'Storage Allocation',value:r.storage+' GB',sub:r.storageUsed+' GB used',pct:stoPct,from:'0',to:r.storage+' GB'},
+    {label:'Image Quota',value:r.maxImages+' images',sub:t.images.length+' deployed',pct:imgPct,from:'0',to:r.maxImages+''},
+  ];
+
+  document.getElementById('allocCards').innerHTML = cards.map(card => {
+    const cls = card.pct>85?'red':card.pct>65?'amber':'blue';
+    return `<div class="alloc-card">
+      <div class="alloc-label">${card.label}</div>
+      <div class="alloc-value">${card.value}</div>
+      <div class="alloc-sub">${card.sub} · ${card.pct}% utilized</div>
+      <div class="alloc-bar-wrap">
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill progress-fill ${cls}" style="width:${card.pct}%"></div></div>
+        <div class="alloc-bar-labels"><span>${card.from}</span><span>${card.to}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  function smallBar(pct) {
+    const cls = pct>85?'red':pct>65?'amber':'green';
+    return `<div class="progress-wrap"><div class="progress-bg" style="min-width:80px"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>`;
+  }
+
+  document.getElementById('allocSummary').innerHTML = `
+    <table class="table" style="font-size:13px">
+      <thead><tr><th>Resource</th><th>Allocated</th><th>Used</th><th>Available</th><th>Utilization</th></tr></thead>
+      <tbody>
+        <tr><td class="td-mono">vCPU</td><td class="td-mono">${r.cpu} cores</td><td class="td-mono">${r.cpuUsed} cores</td><td class="td-mono">${r.cpu-r.cpuUsed} cores</td><td>${smallBar(cpuPct)}</td></tr>
+        <tr><td class="td-mono">Memory</td><td class="td-mono">${r.mem} GB</td><td class="td-mono">${r.memUsed} GB</td><td class="td-mono">${r.mem-r.memUsed} GB</td><td>${smallBar(memPct)}</td></tr>
+        <tr><td class="td-mono">Storage</td><td class="td-mono">${r.storage} GB</td><td class="td-mono">${r.storageUsed} GB</td><td class="td-mono">${r.storage-r.storageUsed} GB</td><td>${smallBar(stoPct)}</td></tr>
+        <tr><td class="td-mono">Images</td><td class="td-mono">${r.maxImages}</td><td class="td-mono">${t.images.length}</td><td class="td-mono">${r.maxImages-t.images.length}</td><td>${smallBar(imgPct)}</td></tr>
+      </tbody>
+    </table>`;
+}
+
+// ══ Misc ═══════════════════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function refreshDetail() {
+  const id = document.getElementById('tenantSelect').value;
+  if (id) { loadTenantDetail(''); setTimeout(()=>loadTenantDetail(id), 80); }
+  showToast('Tenant data refreshed');
+}
+
+function updateSlider(el, valId, fmt) {
+  document.getElementById(valId).textContent = fmt(el.value);
+}
+
+function createTenant() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('Tenant name is required', 'warn'); return; }
+  showToast('Tenant "' + name + '" provisioned successfully!');
+  setTimeout(() => navigateTo('tenants'), 1200);
+}
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
+}
+
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  icon.className = type==='warn' ? 'ti ti-alert-triangle' : 'ti ti-circle-check';
+  icon.style.color = type==='warn' ? 'var(--warning)' : 'var(--success)';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══ Init ═══════════════════════════════════════════════════════════════
+renderTenantTable(tenants);
+refreshTenantSelect();
+</script>
+</body>
+</html>
