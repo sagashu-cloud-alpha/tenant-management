@@ -27,7 +27,9 @@ const rows: DeploymentRow[] = [
 ]
 
 function getBadgeClass(v: string) {
-  return v === "running" ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" : "bg-red-500/10 text-red-500 hover:bg-red-500/20"
+  return v === "running"
+    ? "bg-[var(--green-bg)] text-[var(--green)] border border-[var(--green-border)] hover:brightness-110"
+    : "bg-[var(--red-bg)] text-[var(--red)] border border-[var(--red-border)] hover:brightness-110"
 }
 
 export default function DeploymentPage() {
@@ -86,7 +88,7 @@ export default function DeploymentPage() {
                 <tr key={row.service} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-blue-500/15 text-blue-500 flex items-center justify-center text-base">
+                      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[var(--blue-bg)] text-[var(--blue)] flex items-center justify-center text-base">
                         <i className="ti ti-box" />
                       </div>
                       <div className="min-w-0">

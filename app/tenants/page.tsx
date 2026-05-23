@@ -10,18 +10,18 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 function getBadgeClass(v: string) {
-  if (v === "active" || v === "running") return "bg-green-500/10 text-green-500 hover:bg-green-500/20"
-  if (v === "suspended" || v === "warning") return "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
-  if (v === "starter") return "bg-teal-500/10 text-teal-500 hover:bg-teal-500/20"
-  if (v === "pro") return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-  if (v === "enterprise") return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
-  return "bg-muted text-muted-foreground"
+  if (v === "active" || v === "running") return "bg-[var(--green-bg)] text-[var(--green)] border border-[var(--green-border)] hover:brightness-110"
+  if (v === "suspended" || v === "warning") return "bg-[var(--amber-bg)] text-[var(--amber)] border border-[var(--amber-border)] hover:brightness-110"
+  if (v === "starter") return "bg-[var(--teal-bg)] text-[var(--teal)] border border-[var(--teal-border)] hover:brightness-110"
+  if (v === "pro") return "bg-[var(--blue-bg)] text-[var(--blue)] border border-[var(--blue-bg)] hover:brightness-110"
+  if (v === "enterprise") return "bg-[var(--purple-bg)] text-[var(--purple)] border border-[var(--purple-border)] hover:brightness-110"
+  return "bg-[var(--bg4)] text-[var(--text2)] border border-[var(--border2)]"
 }
 
 function getDotClass(v: string) {
-  if (v === "active" || v === "running") return "bg-green-500"
-  if (v === "suspended" || v === "warning") return "bg-amber-500"
-  return "bg-muted-foreground"
+  if (v === "active" || v === "running") return "bg-[var(--green)]"
+  if (v === "suspended" || v === "warning") return "bg-[var(--amber)]"
+  return "bg-[var(--text3)]"
 }
 
 export default function TenantsPage() {
@@ -53,20 +53,21 @@ export default function TenantsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Total Tenants", value: tenants.length, delta: "2 this month", color: "bg-blue-500", up: true },
-          { label: "Active", value: activeCount, delta: `${Math.round((activeCount / tenants.length) * 100)}% of total`, color: "bg-green-500", up: false },
-          { label: "Docker Images", value: totalImages, delta: "across all tenants", color: "bg-amber-500", up: false },
-          { label: "Services Running", value: servicesRunning, delta: `${totalServices - servicesRunning} need attention`, color: "bg-purple-500", up: false },
+          { label: "Total Tenants", value: tenants.length, delta: "this month", color: "bg-[var(--primary)]", icon: "ti-building-skyscraper", up: true },
+          { label: "Active", value: activeCount, delta: `${Math.round((activeCount / tenants.length) * 100)}% of total`, color: "bg-[var(--green)]", icon: "ti-circle-check", up: false },
+          { label: "Docker Images", value: totalImages, delta: "across all tenants", color: "bg-[var(--amber)]", icon: "ti-container", up: false },
+          { label: "Services Running", value: servicesRunning, delta: `${totalServices - servicesRunning} need attention`, color: "bg-[var(--purple)]", icon: "ti-server", up: false },
         ].map((s) => (
-          <Card key={s.label} className="relative border p-5 overflow-hidden transition-all hover:border-primary/50">
-            <div className={`absolute top-0 left-0 right-0 h-0.5 ${s.color}`} />
-            <div className="text-xs font-mono text-muted-foreground tracking-widest uppercase font-medium mb-2">{s.label}</div>
-            <div className="font-display text-3xl font-bold text-foreground mb-1.5">{s.value}</div>
-            <div className="text-xs text-muted-foreground">
-              {s.up && <span className="text-green-500 mr-1">↑</span>}
-              {s.delta}
+          <Card size="sm" key={s.label} className="relative py-4 px-[18px] rounded-[var(--radius-lg)] overflow-hidden transition-all hover:border-[var(--border-focus)] hover:shadow-[var(--shadow)]">
+            <div className={`absolute top-0 left-0 right-0 h-[2px] ${s.color}`} />
+            <i className={`ti ${s.icon} absolute top-4 right-4 text-[20px] opacity-[0.15] text-[var(--text-primary)]`} />
+            <div className="text-[12px] font-medium text-[var(--text-secondary)]">{s.label}</div>
+            <div className="text-[28px] font-bold text-[var(--text-primary)] leading-none tracking-tight">{s.value}</div>
+            <div className="text-[12px] text-[var(--text-muted)] flex items-center gap-1">
+              {s.up && <span className="text-[var(--green)] font-semibold">↑ 2</span>}
+              <span>{s.delta}</span>
             </div>
           </Card>
         ))}

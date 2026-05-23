@@ -19,16 +19,16 @@ function getBadgeVariant(v: string): "default" | "secondary" | "destructive" | "
 }
 
 function getBadgeClass(v: string) {
-  if (v === "active" || v === "running") return "bg-green-500/10 text-green-500 hover:bg-green-500/20"
-  if (v === "suspended" || v === "warning") return "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
-  if (v === "starter") return "bg-teal-500/10 text-teal-500 hover:bg-teal-500/20"
-  if (v === "pro") return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-  if (v === "enterprise") return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
-  return "bg-muted text-muted-foreground"
+  if (v === "active" || v === "running") return "bg-[var(--green-bg)] text-[var(--green)] border border-[var(--green-border)] hover:brightness-110"
+  if (v === "suspended" || v === "warning") return "bg-[var(--amber-bg)] text-[var(--amber)] border border-[var(--amber-border)] hover:brightness-110"
+  if (v === "starter") return "bg-[var(--teal-bg)] text-[var(--teal)] border border-[var(--teal-border)] hover:brightness-110"
+  if (v === "pro") return "bg-[var(--blue-bg)] text-[var(--blue)] border border-[var(--blue-bg)] hover:brightness-110"
+  if (v === "enterprise") return "bg-[var(--purple-bg)] text-[var(--purple)] border border-[var(--purple-border)] hover:brightness-110"
+  return "bg-[var(--bg4)] text-[var(--text2)] border border-[var(--border2)]"
 }
 
 function barFill(pct: number) {
-  return pct > 85 ? "bg-red-500" : pct > 65 ? "bg-amber-500" : "bg-green-500"
+  return pct > 85 ? "bg-[var(--red)]" : pct > 65 ? "bg-[var(--amber)]" : "bg-[var(--green)]"
 }
 
 function MiniBar({ label, used, total }: { label: string; used: number; total: number }) {
@@ -148,7 +148,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Services Running</span>
-                  <span className="font-mono text-green-500">
+                  <span className="font-mono text-[var(--green)]">
                     {t.services.filter(s => s.status === "running").length} / {t.services.length}
                   </span>
                 </div>
@@ -201,7 +201,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
                   </thead>
                   <tbody>
                     {t.images.map((img) => {
-                      const dotClass = img.status === "running" ? "bg-green-500" : img.status === "warning" ? "bg-amber-500" : "bg-red-500"
+                      const dotClass = img.status === "running" ? "bg-[var(--green)]" : img.status === "warning" ? "bg-[var(--amber)]" : "bg-[var(--red)]"
                       return (
                         <tr key={img.name + img.tag} className="border-b border-[var(--border)] hover:bg-[var(--bg3)] transition-colors">
                           <td className="px-3 sm:px-5 py-4">
@@ -255,10 +255,10 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
               {t.services.map((svc) => {
                 const borderClass =
                   svc.status === "running"
-                    ? "border-l-green-500"
+                    ? "border-l-[var(--green)]"
                     : svc.status === "warning"
-                      ? "border-l-amber-500"
-                      : "border-l-muted-foreground"
+                      ? "border-l-[var(--amber)]"
+                      : "border-l-[var(--text3)]"
                 return (
                   <Card
                     key={svc.name}
