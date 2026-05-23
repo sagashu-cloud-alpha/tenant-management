@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 import { Button } from "@/components/ui/button"
