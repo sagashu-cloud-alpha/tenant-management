@@ -3,7 +3,6 @@ import { Inter, DM_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { AppLayout } from "@/components/app-layout"
 
 // app/layout.tsx  (or pages/_document.tsx for Pages Router)
 
@@ -67,9 +66,10 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <AppLayout>{children}</AppLayout>
+          {children}
         </ThemeProvider>
       </body>
     </html>
   )
 }
+
