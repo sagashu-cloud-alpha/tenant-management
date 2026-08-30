@@ -1,7 +1,15 @@
 import Link from "next/link"
+import { Rocket, Play, PieChart } from "lucide-react"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 import { Button } from "@/components/ui/button"
 import { AvatarMark } from "@/components/avatar-mark"
+import {
+  IconSparkle,
+  IconGrid,
+  IconUpDown,
+  IconMenuWidgets,
+  ServerIcon,
+} from "@/components/icons"
 
 export default function LandingPage() {
   return (
@@ -33,7 +41,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="flex flex-col items-center text-center px-6 pt-[100px] pb-[80px] gap-6 max-w-[760px] mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[hsla(213,94%,55%,0.08)] border border-[hsla(213,94%,55%,0.15)] text-primary text-xs font-medium dark:bg-[hsla(213,94%,68%,0.12)] dark:border-[hsla(213,94%,68%,0.2)]">
-          <i className="ti ti-bolt text-[13px]"></i> 
+          <IconSparkle className="h-3.5 w-3.5" />
           Now with AI-powered tenant insights
         </div>
         
@@ -49,12 +57,12 @@ export default function LandingPage() {
         <div className="flex gap-3 items-center flex-wrap justify-center mt-2">
           <Button size="lg" asChild className="h-11 px-6 rounded-md">
             <Link href="/login">
-              <i className="ti ti-rocket mr-2 text-base"></i> Start for free
+              <Rocket className="mr-2 h-4 w-4" /> Start for free
             </Link>
           </Button>
-          <Button variant="outline" size="lg" asChild className="h-11 px-6 rounded-md bg-[var(--bg-elevated)] border-[var(--border-input)]">
+          <Button variant="outline" size="lg" asChild className="h-11 px-6 rounded-md bg-[var(--bg-elevated)] border-border-input">
             <Link href="#">
-              <i className="ti ti-play mr-2 text-base"></i> View demo
+              <Play className="mr-2 h-4 w-4" /> View demo
             </Link>
           </Button>
         </div>
@@ -71,7 +79,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2 bg-card border border-border rounded-xl p-7 transition-all hover:border-primary hover:shadow-md hover:-translate-y-[1px]">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-xl bg-[hsla(213,94%,55%,0.08)] text-primary dark:bg-[hsla(213,94%,68%,0.12)]">
-              <i className="ti ti-building-skyscraper"></i>
+              <IconGrid className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">Tenant Provisioning</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -81,7 +89,7 @@ export default function LandingPage() {
 
           <div className="bg-card border border-border rounded-xl p-7 transition-all hover:border-primary hover:shadow-md hover:-translate-y-[1px]">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-xl bg-[hsla(142,76%,36%,0.08)] text-[hsl(142,76%,36%)] dark:bg-[hsla(142,71%,45%,0.12)] dark:text-[hsl(142,71%,45%)]">
-              <i className="ti ti-activity"></i>
+              <IconUpDown className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">Real-time Monitoring</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -91,7 +99,7 @@ export default function LandingPage() {
 
           <div className="bg-card border border-border rounded-xl p-7 transition-all hover:border-primary hover:shadow-md hover:-translate-y-[1px]">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-xl bg-[hsla(263,70%,50%,0.08)] text-[hsl(263,70%,50%)] dark:bg-[hsla(263,70%,70%,0.12)] dark:text-[hsl(263,70%,70%)]">
-              <i className="ti ti-container"></i>
+              <IconMenuWidgets className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">Docker Registry</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -101,7 +109,7 @@ export default function LandingPage() {
 
           <div className="bg-card border border-border rounded-xl p-7 transition-all hover:border-primary hover:shadow-md hover:-translate-y-[1px]">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-xl bg-[hsla(32,95%,44%,0.08)] text-[hsl(32,95%,44%)] dark:bg-[hsla(38,92%,50%,0.12)] dark:text-[hsl(38,92%,50%)]">
-              <i className="ti ti-server"></i>
+              <ServerIcon className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">Service Management</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -111,7 +119,7 @@ export default function LandingPage() {
 
           <div className="bg-card border border-border rounded-xl p-7 transition-all hover:border-primary hover:shadow-md hover:-translate-y-[1px]">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-xl bg-[hsla(173,80%,36%,0.08)] text-[hsl(173,80%,36%)] dark:bg-[hsla(173,80%,50%,0.12)] dark:text-[hsl(173,80%,50%)]">
-              <i className="ti ti-chart-pie"></i>
+              <PieChart className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">Resource Allocation</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
