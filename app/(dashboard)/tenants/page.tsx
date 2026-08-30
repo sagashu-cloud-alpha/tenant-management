@@ -1,13 +1,16 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Link from "next/link"
-import { tenants, COLORS } from "@/lib/tenant-data"
+import { tenants as initialTenants, COLORS, type Tenant } from "@/lib/tenant-data"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Eye } from "lucide-react"
+import { IconSearch, IconEdit, IconGrid, IconMenuWidgets, IconPlus, CheckCircleIcon, ServerIcon } from "@/components/icons"
+import { TenantCreateDrawer } from "@/components/tenant-create-drawer"
+import { TenantViewDrawer } from "@/components/tenant-view-drawer"
 
 function getBadgeClass(v: string) {
   if (v === "active" || v === "running") return "bg-[var(--green-bg)] text-[var(--green)] border border-[var(--green-border)] hover:brightness-110"
@@ -25,46 +28,69 @@ function getDotClass(v: string) {
 }
 
 export default function TenantsPage() {
+  const [tenantList, setTenantList] = useState<Tenant[]>(() => [...initialTenants])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [planFilter, setPlanFilter] = useState("")
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [viewTenant, setViewTenant] = useState<Tenant | null>(null)
+  const [viewDrawerOpen, setViewDrawerOpen] = useState(false)
+
+  const openTenantView = (tenant: Tenant) => {
+    setViewTenant(tenant)
+    setViewDrawerOpen(true)
+  }
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return tenants.filter((t) => {
+    return tenantList.filter((t) => {
       const matchesSearch = !q || t.name.toLowerCase().includes(q) || t.id.includes(q) || t.subdomain.includes(q)
       const matchesStatus = !statusFilter || statusFilter === "all" || t.status === statusFilter
       const matchesPlan = !planFilter || planFilter === "all" || t.plan === planFilter
       return matchesSearch && matchesStatus && matchesPlan
     })
-  }, [search, statusFilter, planFilter])
+  }, [tenantList, search, statusFilter, planFilter])
 
-  const activeCount = tenants.filter((t) => t.status === "active").length
-  const totalImages = tenants.reduce((s, t) => s + t.images.length, 0)
-  const totalServices = tenants.reduce((s, t) => s + t.services.length, 0)
-  const servicesRunning = tenants.reduce((s, t) => s + t.services.filter((sv) => sv.status === "running").length, 0)
+  const activeCount = tenantList.filter((t) => t.status === "active").length
+  const totalImages = tenantList.reduce((s, t) => s + t.images.length, 0)
+  const totalServices = tenantList.reduce((s, t) => s + t.services.length, 0)
+  const servicesRunning = tenantList.reduce((s, t) => s + t.services.filter((sv) => sv.status === "running").length, 0)
+
+  const handleCreated = (tenant: Tenant) => {
+    initialTenants.push(tenant)
+    setTenantList((prev) => [tenant, ...prev])
+  }
+
+  const nextId = "tnx-" + String(tenantList.length + 1).padStart(3, "0")
+
+  const stats = [
+    { label: "Total Tenants", value: tenantList.length, delta: "this month", color: "bg-[var(--primary)]", icon: IconGrid, up: true },
+    { label: "Active", value: activeCount, delta: `${Math.round((activeCount / tenantList.length) * 100)}% of total`, color: "bg-[var(--green)]", icon: CheckCircleIcon, up: false },
+    { label: "Docker Images", value: totalImages, delta: "across all tenants", color: "bg-[var(--amber)]", icon: IconMenuWidgets, up: false },
+    { label: "Services Running", value: servicesRunning, delta: `${totalServices - servicesRunning} need attention`, color: "bg-[var(--purple)]", icon: ServerIcon, up: false },
+  ]
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="space-y-1.5">
-        <h1 className="text-2xl font-bold font-display tracking-tight text-foreground">Tenants</h1>
-        <p className="text-sm text-muted-foreground">Manage all tenants and their cloud allocations</p>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="page-action page-action--labeled"
+        >
+          <IconPlus className="h-3.5 w-3.5" /> New Tenant
+        </button>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { label: "Total Tenants", value: tenants.length, delta: "this month", color: "bg-[var(--primary)]", icon: "ti-building-skyscraper", up: true },
-          { label: "Active", value: activeCount, delta: `${Math.round((activeCount / tenants.length) * 100)}% of total`, color: "bg-[var(--green)]", icon: "ti-circle-check", up: false },
-          { label: "Docker Images", value: totalImages, delta: "across all tenants", color: "bg-[var(--amber)]", icon: "ti-container", up: false },
-          { label: "Services Running", value: servicesRunning, delta: `${totalServices - servicesRunning} need attention`, color: "bg-[var(--purple)]", icon: "ti-server", up: false },
-        ].map((s) => (
-          <Card size="sm" key={s.label} className="relative py-4 px-[18px] rounded-[var(--radius-lg)] overflow-hidden transition-all hover:border-[var(--border-focus)] hover:shadow-[var(--shadow)]">
+        {stats.map((s) => (
+          <Card size="sm" key={s.label} className="relative py-4 px-[18px] rounded-[var(--radius-lg)] overflow-hidden transition-colors hover:border-border-strong">
             <div className={`absolute top-0 left-0 right-0 h-[2px] ${s.color}`} />
-            <i className={`ti ${s.icon} absolute top-4 right-4 text-[20px] opacity-[0.15] text-[var(--text-primary)]`} />
-            <div className="text-[12px] font-medium text-[var(--text-secondary)]">{s.label}</div>
-            <div className="text-[28px] font-bold text-[var(--text-primary)] leading-none tracking-tight">{s.value}</div>
+            <s.icon className="absolute top-4 right-4 h-5 w-5 opacity-[0.15] text-foreground" />
+            <div className="text-[12px] font-medium text-muted-foreground">{s.label}</div>
+            <div className="text-[28px] font-bold text-foreground leading-none tracking-tight">{s.value}</div>
             <div className="text-[12px] text-[var(--text-muted)] flex items-center gap-1">
               {s.up && <span className="text-[var(--green)] font-semibold">↑ 2</span>}
               <span>{s.delta}</span>
@@ -76,16 +102,6 @@ export default function TenantsPage() {
       {/* Filters */}
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
-            <i className="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-base pointer-events-none" />
-            <Input
-              type="text"
-              placeholder="Search tenants…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Status" />
@@ -108,6 +124,16 @@ export default function TenantsPage() {
               <SelectItem value="enterprise">Enterprise</SelectItem>
             </SelectContent>
           </Select>
+          <div className="relative sm:ml-auto sm:w-[260px]">
+            <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Search tenants…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
       </Card>
 
@@ -131,7 +157,7 @@ export default function TenantsPage() {
                 <tr>
                   <td colSpan={7} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <i className="ti ti-search text-4xl opacity-30 text-muted-foreground" />
+                      <IconSearch className="h-10 w-10 opacity-30 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">No tenants match your filters</p>
                     </div>
                   </td>
@@ -143,10 +169,14 @@ export default function TenantsPage() {
                   return (
                     <tr
                       key={t.id}
-                      className="border-b hover:bg-muted/50 transition-colors duration-150 cursor-pointer"
+                      className="border-b row-hover-brand transition-colors duration-150 cursor-pointer"
                     >
                       <td className="px-5 py-4">
-                        <Link href={`/tenants/${t.id}`} className="flex items-center gap-3 no-underline group">
+                        <button
+                          type="button"
+                          onClick={() => openTenantView(t)}
+                          className="flex items-center gap-3 text-left group"
+                        >
                           <div className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold group-hover:shadow-md transition-shadow" style={{ background: c.bg, color: c.color }}>
                             {initials}
                           </div>
@@ -154,7 +184,7 @@ export default function TenantsPage() {
                             <p className="text-sm font-medium text-foreground truncate">{t.name}</p>
                             <p className="text-xs text-muted-foreground font-mono truncate">{t.id} · {t.subdomain}.cloudaxis.io</p>
                           </div>
-                        </Link>
+                        </button>
                       </td>
                       <td className="px-5 py-4">
                         <Badge className={getBadgeClass(t.status)}>
@@ -182,16 +212,11 @@ export default function TenantsPage() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <Button asChild variant="ghost" size="icon" className="h-8 w-8" title="View Detail">
-                            <Link href={`/tenants/${t.id}`}>
-                              <i className="ti ti-eye text-base" />
-                            </Link>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="View Detail" onClick={() => openTenantView(t)}>
+                            <Eye className="size-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Settings">
-                            <i className="ti ti-settings text-base" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" title="More">
-                            <i className="ti ti-dots-vertical text-base" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit">
+                            <IconEdit className="size-3" />
                           </Button>
                         </div>
                       </td>
@@ -203,6 +228,19 @@ export default function TenantsPage() {
           </table>
         </div>
       </Card>
+
+      <TenantCreateDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        nextId={nextId}
+        onCreated={handleCreated}
+      />
+
+      <TenantViewDrawer
+        tenant={viewTenant}
+        open={viewDrawerOpen}
+        onOpenChange={setViewDrawerOpen}
+      />
     </div>
   )
 }

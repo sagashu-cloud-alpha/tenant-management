@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AvatarMark } from "@/components/avatar-mark"
+import { IconError } from "@/components/icons"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -70,7 +71,7 @@ export default function LoginPage() {
 
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-md p-2.5 text-[13px] text-destructive flex items-center gap-2 mt-1">
-              <i className="ti ti-alert-circle"></i> Invalid credentials. Try user / user123
+              <IconError className="h-4 w-4 shrink-0" /> Invalid credentials. Try user / user123
             </div>
           )}
 

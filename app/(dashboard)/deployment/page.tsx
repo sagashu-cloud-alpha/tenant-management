@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { IconDownload, IconMenuWidgets, KebabIcon, IconArrowLeft, IconArrowRight } from "@/components/icons"
 
 type DeploymentRow = {
   service: string
@@ -58,11 +60,11 @@ export default function DeploymentPage() {
         </Select>
         <div className="flex items-center gap-2 ml-auto">
           <Button variant="outline" size="sm">
-            <i className="ti ti-refresh mr-2" />
+            <RefreshCw className="mr-2 h-3.5 w-3.5" />
             Refresh
           </Button>
           <Button variant="outline" size="sm">
-            <i className="ti ti-download mr-2" />
+            <IconDownload className="mr-2 h-3.5 w-3.5" />
             Download
           </Button>
         </div>
@@ -85,11 +87,11 @@ export default function DeploymentPage() {
             </thead>
             <tbody>
               {filtered.map((row) => (
-                <tr key={row.service} className="border-b hover:bg-muted/50 transition-colors">
+                <tr key={row.service} className="border-b row-hover-brand transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[var(--blue-bg)] text-[var(--blue)] flex items-center justify-center text-base">
-                        <i className="ti ti-box" />
+                      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[var(--blue-bg)] text-[var(--blue)] flex items-center justify-center">
+                        <IconMenuWidgets className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
                         <div className="text-sm font-medium text-foreground truncate">{row.service}</div>
@@ -122,7 +124,7 @@ export default function DeploymentPage() {
                   <td className="px-5 py-4">
                     <div className="flex justify-end">
                       <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <i className="ti ti-dots-vertical" />
+                        <KebabIcon className="h-4 w-4" />
                       </Button>
                     </div>
                   </td>
@@ -140,13 +142,13 @@ export default function DeploymentPage() {
         </div>
         <div className="flex items-center gap-1">
           <Button variant="outline" size="sm" disabled className="opacity-50">
-            <i className="ti ti-chevron-left" />
+            <IconArrowLeft className="h-3.5 w-3.5" />
           </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button size="sm">
             1
           </Button>
           <Button variant="outline" size="sm">
-            <i className="ti ti-chevron-right" />
+            <IconArrowRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

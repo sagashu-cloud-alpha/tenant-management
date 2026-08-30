@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { Tag, PieChart } from "lucide-react"
 import { type Tenant, COLORS } from "@/lib/tenant-data"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { IconMenuWidgets, ServerIcon, IconGrid } from "@/components/icons"
 
 type Tab = "overview" | "images" | "services" | "allocation"
 
@@ -91,21 +93,21 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)} className="space-y-10 md:space-y-5">
         <TabsList className="bg-[var(--bg2)] border border-[var(--border)] rounded-lg p-0.5 w-full h-full grid grid-cols-2 gap-0.5 sm:inline-flex sm:w-auto sm:p-1 sm:gap-0">
-          <TabsTrigger value="overview" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--accent)]/10">
-            <i className="ti ti-layout-dashboard" />
+          <TabsTrigger value="overview" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--color-brand)]/10">
+            <IconMenuWidgets className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
             <span className="sm:hidden">Info</span>
           </TabsTrigger>
-          <TabsTrigger value="images" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--accent)]/10">
-            <i className="ti ti-container" />
+          <TabsTrigger value="images" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--color-brand)]/10">
+            <IconMenuWidgets className="h-4 w-4" />
             Images
           </TabsTrigger>
-          <TabsTrigger value="services" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--accent)]/10">
-            <i className="ti ti-server" />
+          <TabsTrigger value="services" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--color-brand)]/10">
+            <ServerIcon className="h-4 w-4" />
             Services
           </TabsTrigger>
-          <TabsTrigger value="allocation" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--accent)]/10">
-            <i className="ti ti-chart-pie" />
+          <TabsTrigger value="allocation" className="gap-1.5 sm:gap-2 text-xs sm:text-sm data-[state=active]:bg-[var(--color-brand)]/10">
+            <PieChart className="h-4 w-4" />
             <span className="hidden sm:inline">Allocation</span>
             <span className="sm:hidden">Usage</span>
           </TabsTrigger>
@@ -135,7 +137,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
             {/* Quick Stats */}
             <Card className="border border-[var(--border)] bg-[var(--bg2)] p-4 sm:p-5">
               <div className="flex items-center gap-2.5 text-sm sm:text-base font-semibold mb-4 sm:mb-5">
-                <i className="ti ti-server-2 text-[var(--accent)]" />
+                <ServerIcon className="h-4 w-4 text-[var(--color-brand)]" />
                 <span className="text-foreground">Quick Stats</span>
               </div>
               <div className="space-y-0.5">
@@ -158,7 +160,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
             {/* Tags */}
             <Card className="border border-[var(--border)] bg-[var(--bg2)] p-4 sm:p-5">
               <div className="flex items-center gap-2.5 text-sm sm:text-base font-semibold mb-4 sm:mb-5">
-                <i className="ti ti-tag text-[var(--accent)]" />
+                <Tag className="h-4 w-4 text-[var(--color-brand)]" />
                 <span className="text-foreground">Tags</span>
               </div>
               {t.tags.length > 0 ? (
@@ -181,7 +183,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
           <Card className="border border-[var(--border)] bg-[var(--bg2)] overflow-hidden">
             {t.images.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-                <i className="ti ti-container text-5xl opacity-30" />
+                <IconMenuWidgets className="h-12 w-12 opacity-30" />
                 <p className="text-sm">No docker images allocated</p>
               </div>
             ) : (
@@ -205,7 +207,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
                       return (
                         <tr key={img.name + img.tag} className="border-b border-[var(--border)] hover:bg-[var(--bg3)] transition-colors">
                           <td className="px-3 sm:px-5 py-4">
-                            <span className="font-mono text-xs text-[var(--accent)]">{img.name}</span>
+                            <span className="font-mono text-xs text-[var(--color-brand)]">{img.name}</span>
                           </td>
                           <td className="px-3 sm:px-5 py-4">
                             <Badge variant="secondary" className="font-mono text-xs">
@@ -247,7 +249,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
         <TabsContent value="services">
           {t.services.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-              <i className="ti ti-server text-5xl opacity-30" />
+              <ServerIcon className="h-12 w-12 opacity-30" />
               <p className="text-sm">No services running</p>
             </div>
           ) : (
@@ -324,7 +326,7 @@ export default function TenantDetailContent({ tenant: t }: { tenant: Tenant }) {
 
           <Card className="border border-[var(--border)] bg-[var(--bg2)] p-4 sm:p-5">
             <div className="flex items-center gap-2.5 text-sm sm:text-base font-semibold mb-4 sm:mb-5">
-              <i className="ti ti-list-details text-[var(--accent)]" />
+              <IconGrid className="h-4 w-4 text-[var(--color-brand)]" />
               <span className="text-foreground">Allocated Resources Summary</span>
             </div>
             <div className="overflow-x-auto -mx-4 sm:mx-0">

@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -18,38 +17,42 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { AvatarMark } from "./avatar-mark"
+import {
+  IconGrid,
+  IconLaptop,
+  IconUpDown,
+  IconLockDots,
+  IconUsers,
+  IconAdministration,
+} from "@/components/icons"
+import type { ComponentType } from "react"
 
-const navSections = [
+type NavIcon = ComponentType<{ className?: string }>
+
+const navSections: {
+  label: string
+  items: { title: string; href: string; icon: NavIcon }[]
+}[] = [
   {
     label: "Workspace",
     items: [
-      { title: "Tenants", href: "/tenants", icon: "ti ti-building-skyscraper" },
-      {
-        title: "Create Tenant",
-        href: "/create-tenants",
-        icon: "ti ti-circle-plus",
-      },
-      {
-        title: "Tenant Detail",
-        href: "/tenant-details",
-        icon: "ti ti-layout-dashboard",
-      },
+      { title: "Tenants", href: "/tenants", icon: IconGrid },
     ],
   },
   {
     label: "Platform",
     items: [
-      { title: "Deployments", href: "/deployment", icon: "ti ti-container" },
-      { title: "Monitoring", href: "/monitoring", icon: "ti ti-activity" },
-      { title: "Security", href: "/security", icon: "ti ti-shield-check" },
-      { title: "API Keys", href: "/api-keys", icon: "ti ti-key" },
+      { title: "Deployments", href: "/deployment", icon: IconLaptop },
+      { title: "Monitoring", href: "/monitoring", icon: IconUpDown },
+      { title: "Security", href: "/security", icon: IconLockDots },
+      { title: "API Keys", href: "/api-keys", icon: IconLockDots },
     ],
   },
   {
     label: "Admin",
     items: [
-      { title: "Users", href: "/users", icon: "ti ti-users" },
-      { title: "Settings", href: "/settings", icon: "ti ti-settings" },
+      { title: "Users", href: "/users", icon: IconUsers },
+      { title: "Settings", href: "/settings", icon: IconAdministration },
     ],
   },
 ]
@@ -74,7 +77,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
-      <SidebarHeader className="border-b px-5 pt-[22px] pb-[18px] group-data-[collapsible=icon]:px-3">
+      <SidebarHeader className="h-[58px] shrink-0 justify-center border-b px-4 group-data-[collapsible=icon]:px-3">
         <Link
           href="/tenants"
           className="flex items-center gap-2.5 no-underline group-data-[collapsible=icon]:justify-center"
@@ -110,14 +113,14 @@ export function AppSidebar() {
                         asChild
                         isActive={active}
                         tooltip={item.title}
-                        className="h-auto rounded-lg px-[10px] py-[9px] text-[13.5px] font-medium group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2 hover:bg-muted data-[active=true]:bg-primary/10 data-[active=true]:text-primary [&_i]:h-auto [&_i]:w-auto [&_i]:text-[17px]"
+                        className="h-9 rounded-md px-[10px] py-0 text-[13.5px] font-medium text-muted-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2 hover:bg-surface-hover hover:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:opacity-65 data-[active=true]:[&_svg]:opacity-100 hover:[&_svg]:opacity-100"
                       >
                         <Link
                           href={item.href}
                           className="flex items-center gap-2.5"
                           onClick={handleNavClick}
                         >
-                          <i className={item.icon} />
+                          <item.icon />
                           <span className="group-data-[collapsible=icon]:hidden">
                             {item.title}
                           </span>
@@ -131,20 +134,6 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-
-      <SidebarFooter className="border-t px-2.5 py-3.5 group-data-[collapsible=icon]:px-2">
-        <div className="flex cursor-pointer items-center gap-2.5 rounded-lg p-2 group-data-[collapsible=icon]:justify-center hover:bg-muted">
-          <AvatarMark
-            initials="OP"
-            size="sm"
-            variant="user"
-            shape="rounded"
-            showName={!isCollapsed}
-            name="Ops Admin"
-            subtext="Super Admin"
-          />
-        </div>
-      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>
