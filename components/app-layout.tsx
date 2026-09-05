@@ -15,7 +15,6 @@ import { ProfileMenu } from "@/components/profile-menu"
 
 function pageTitle(pathname: string) {
   if (pathname === "/tenants") return "Tenant Management"
-  if (pathname === "/deployment") return "Deployments"
   return "Cloud Alpha"
 }
 
