@@ -17,14 +17,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { AvatarMark } from "./avatar-mark"
-import {
-  IconGrid,
-  IconLaptop,
-  IconUpDown,
-  IconLockDots,
-  IconUsers,
-  IconAdministration,
-} from "@/components/icons"
+import { IconGrid, IconUsers, IconAdministration } from "@/components/icons"
+import { Shield, SlidersHorizontal } from "lucide-react"
+import { useOrgSettings } from "@/components/org-settings-provider"
 import type { ComponentType } from "react"
 
 type NavIcon = ComponentType<{ className?: string }>
@@ -37,21 +32,14 @@ const navSections: {
     label: "Workspace",
     items: [
       { title: "Tenants", href: "/tenants", icon: IconGrid },
-    ],
-  },
-  {
-    label: "Platform",
-    items: [
-      { title: "Deployments", href: "/deployment", icon: IconLaptop },
-      { title: "Monitoring", href: "/monitoring", icon: IconUpDown },
-      { title: "Security", href: "/security", icon: IconLockDots },
-      { title: "API Keys", href: "/api-keys", icon: IconLockDots },
+      { title: "Configuration", href: "/configuration", icon: SlidersHorizontal },
     ],
   },
   {
     label: "Admin",
     items: [
       { title: "Users", href: "/users", icon: IconUsers },
+      { title: "Roles", href: "/roles", icon: Shield },
       { title: "Settings", href: "/settings", icon: IconAdministration },
     ],
   },
@@ -64,10 +52,22 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/")
 }
 
+function getInitials(name: string) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+  return initials || "CA"
+}
+
 export function AppSidebar() {
   const pathname = usePathname()
   const { state, setOpenMobile, isMobile } = useSidebar()
   const isCollapsed = state === "collapsed"
+  const { orgName } = useOrgSettings()
 
   const handleNavClick = () => {
     if (isMobile) {
@@ -82,10 +82,10 @@ export function AppSidebar() {
           href="/tenants"
           className="flex items-center gap-2.5 no-underline group-data-[collapsible=icon]:justify-center"
         >
-          <AvatarMark initials="CA" size="sm" variant="brand" shape="rounded" />
+          <AvatarMark initials={getInitials(orgName)} size="sm" variant="brand" shape="rounded" />
           {!isCollapsed && (
-            <span className="font-display text-[17px] font-bold tracking-tight">
-              Cloud Alpha
+            <span className="font-display text-[17px] font-bold tracking-tight truncate">
+              {orgName}
               <span className="ml-1 rounded border border-primary bg-primary/10 px-[5px] py-[1px] align-middle font-mono text-[9px] text-primary">
                 SaaS
               </span>

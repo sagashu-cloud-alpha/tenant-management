@@ -2,6 +2,8 @@ import { Outfit } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { OrgSettingsProvider } from "@/components/org-settings-provider"
+import { ProfileProvider } from "@/components/profile-provider"
 import { cn } from "@/lib/utils"
 
 // app/layout.tsx  (or pages/_document.tsx for Pages Router)
@@ -56,7 +58,11 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          {children}
+          <OrgSettingsProvider>
+            <ProfileProvider>
+              {children}
+            </ProfileProvider>
+          </OrgSettingsProvider>
         </ThemeProvider>
       </body>
     </html>
