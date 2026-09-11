@@ -1,9 +1,12 @@
 import { Outfit } from "next/font/google"
+import { Auth0Provider } from "@auth0/nextjs-auth0/client"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { OrgSettingsProvider } from "@/components/org-settings-provider"
 import { ProfileProvider } from "@/components/profile-provider"
+import { StoreProvider } from "@/store/store-provider"
+import { ToastProvider } from "@/components/ui/toast/toast-context"
 import { cn } from "@/lib/utils"
 
 // app/layout.tsx  (or pages/_document.tsx for Pages Router)
@@ -57,13 +60,19 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>
-          <OrgSettingsProvider>
-            <ProfileProvider>
-              {children}
-            </ProfileProvider>
-          </OrgSettingsProvider>
-        </ThemeProvider>
+        <Auth0Provider>
+          <StoreProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                <OrgSettingsProvider>
+                  <ProfileProvider>
+                    {children}
+                  </ProfileProvider>
+                </OrgSettingsProvider>
+              </ToastProvider>
+            </ThemeProvider>
+          </StoreProvider>
+        </Auth0Provider>
       </body>
     </html>
   )

@@ -1,3 +1,5 @@
+import type { EnvironmentResponseDto } from "@/lib/api-types"
+
 export interface Environment {
   id: string
   name: string
@@ -5,29 +7,11 @@ export interface Environment {
   created: string
 }
 
-export const emptyEnvironment: Omit<Environment, "id"> = {
-  name: "",
-  description: "",
-  created: "",
+export function mapEnvironmentResponse(dto: EnvironmentResponseDto): Environment {
+  return {
+    id: dto.environmentId,
+    name: dto.environmentName,
+    description: dto.environmentDescription ?? "",
+    created: dto.createdAt,
+  }
 }
-
-export const environments: Environment[] = [
-  {
-    id: "env-001",
-    name: "Production",
-    description: "Live customer-facing workloads",
-    created: "2024-01-01",
-  },
-  {
-    id: "env-002",
-    name: "Staging",
-    description: "Pre-production verification",
-    created: "2024-01-01",
-  },
-  {
-    id: "env-003",
-    name: "Development",
-    description: "Active development and testing",
-    created: "2024-01-01",
-  },
-]

@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+import { Controller, useForm } from "react-hook-form"
 import { CreditCard, Trash2 } from "lucide-react"
-import { type Plan, emptyPlan } from "@/lib/plan-data"
+import { type Plan } from "@/lib/plan-data"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { CharCount } from "@/components/ui/char-count"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { IconSearch, IconEdit, IconCheck } from "@/components/icons"
@@ -22,32 +24,44 @@ import {
   AppDrawerBody,
   AppDrawerFooter,
 } from "@/components/ui/app-drawer"
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-}
+import { PaginationBar } from "@/components/ui/pagination-bar"
+import { TableSkeleton } from "@/components/ui/table-skeleton"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { createPlan, deletePlan, fetchPlans, updatePlan } from "@/store/slices/plan-slice"
+import { useToast } from "@/components/ui/toast/toast-context"
+import { useCurrentUserRoles } from "@/components/current-user-provider"
+import { canManagePlans } from "@/lib/permissions"
 
 function getPlanStatusBadgeClass(isActive: boolean) {
   if (isActive) return "bg-[var(--green-bg)] text-[var(--green)] border border-[var(--green-border)] hover:brightness-110"
   return "bg-[var(--bg4)] text-[var(--text2)] border border-[var(--border2)]"
 }
 
-interface PlanPanelProps {
-  plans: Plan[]
-  onPlansChange: (plans: Plan[]) => void
-}
+export function PlanPanel() {
+  const dispatch = useAppDispatch()
+  const { addToast } = useToast()
+  const roles = useCurrentUserRoles()
+  const canManage = canManagePlans(roles)
+  const plans = useAppSelector((s) => s.plans.items)
+  const plansStatus = useAppSelector((s) => s.plans.status)
+  const page = useAppSelector((s) => s.plans.page)
+  const totalPages = useAppSelector((s) => s.plans.totalPages)
+  const totalElements = useAppSelector((s) => s.plans.totalElements)
 
-export function PlanPanel({ plans, onPlansChange }: PlanPanelProps) {
   const [search, setSearch] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Plan | null>(null)
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
     return plans.filter((p) => !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))
   }, [plans, search])
 
-  const nextId = "plan-" + String(plans.length + 1).padStart(3, "0")
+  const goToPage = (nextPage: number) => {
+    dispatch(fetchPlans({ page: nextPage, size: 10 }))
+  }
 
   const openCreate = () => {
     setEditingPlan(null)
@@ -59,14 +73,20 @@ export function PlanPanel({ plans, onPlansChange }: PlanPanelProps) {
     setFormOpen(true)
   }
 
-  const handleSave = (plan: Plan) => {
-    const exists = plans.some((p) => p.id === plan.id)
-    onPlansChange(exists ? plans.map((p) => (p.id === plan.id ? plan : p)) : [plan, ...plans])
-  }
+  const confirmDelete = () => {
+    if (!deleteTarget) return
+    const plan = deleteTarget
+    setDeleteTarget(null)
 
-  const handleDelete = (plan: Plan) => {
-    if (!window.confirm(`Delete plan "${plan.name}"? This cannot be undone.`)) return
-    onPlansChange(plans.filter((p) => p.id !== plan.id))
+    const toast = addToast(`Deleting "${plan.name}"…`, "loading")
+    dispatch(deletePlan(plan.id))
+      .unwrap()
+      .then(() => {
+        toast.update(`Plan "${plan.name}" deleted`, "success")
+      })
+      .catch((err: { message?: string }) => {
+        toast.update(err?.message ?? "Failed to delete plan", "error")
+      })
   }
 
   return (
@@ -82,9 +102,11 @@ export function PlanPanel({ plans, onPlansChange }: PlanPanelProps) {
             className="pl-10"
           />
         </div>
-        <button type="button" onClick={openCreate} className="page-action page-action--labeled ml-auto">
-          <CreditCard className="h-3.5 w-3.5" /> New Plan
-        </button>
+        {canManage && (
+          <button type="button" onClick={openCreate} className="page-action page-action--labeled ml-auto">
+            <CreditCard className="h-3.5 w-3.5" /> New Plan
+          </button>
+        )}
       </div>
 
       <Card className="overflow-hidden">
@@ -96,13 +118,17 @@ export function PlanPanel({ plans, onPlansChange }: PlanPanelProps) {
                 <th className="px-5 py-3.5 text-left text-xs font-mono text-muted-foreground font-semibold uppercase tracking-wider">Price</th>
                 <th className="px-5 py-3.5 text-left text-xs font-mono text-muted-foreground font-semibold uppercase tracking-wider">Duration</th>
                 <th className="px-5 py-3.5 text-left text-xs font-mono text-muted-foreground font-semibold uppercase tracking-wider">Status</th>
-                <th className="px-5 py-3.5 text-right text-xs font-mono text-muted-foreground font-semibold uppercase tracking-wider">Actions</th>
+                {canManage && (
+                  <th className="px-5 py-3.5 text-right text-xs font-mono text-muted-foreground font-semibold uppercase tracking-wider">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {plansStatus === "idle" || plansStatus === "loading" ? (
+                <TableSkeleton columns={canManage ? 5 : 4} />
+              ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center">
+                  <td colSpan={canManage ? 5 : 4} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <IconSearch className="h-10 w-10 opacity-30 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">No plans match your search</p>
@@ -132,172 +158,202 @@ export function PlanPanel({ plans, onPlansChange }: PlanPanelProps) {
                     <td className="px-5 py-4">
                       <Badge className={getPlanStatusBadgeClass(p.isActive)}>{p.isActive ? "active" : "inactive"}</Badge>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit" onClick={() => openEdit(p)}>
-                          <IconEdit className="size-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive" title="Delete" onClick={() => handleDelete(p)}>
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </td>
+                    {canManage && (
+                      <td className="px-5 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit" onClick={() => openEdit(p)}>
+                            <IconEdit className="size-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive" title="Delete" onClick={() => setDeleteTarget(p)}>
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
+        <PaginationBar page={page} totalPages={totalPages} totalElements={totalElements} onPageChange={goToPage} />
       </Card>
 
-      <PlanFormDrawer
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        plan={editingPlan}
-        nextId={nextId}
-        onSave={handleSave}
+      <PlanFormDrawer open={formOpen} onOpenChange={setFormOpen} plan={editingPlan} onSaved={() => goToPage(page)} />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(next) => !next && setDeleteTarget(null)}
+        title="Delete plan"
+        description={deleteTarget ? `Delete plan "${deleteTarget.name}"? This cannot be undone.` : ""}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={confirmDelete}
       />
     </div>
   )
 }
 
+interface PlanFormValues {
+  name: string
+  description: string
+  price: number
+  durationDays: number
+  isActive: string
+}
+
+const emptyPlanValues: PlanFormValues = { name: "", description: "", price: 0, durationDays: 30, isActive: "active" }
+
 interface PlanFormDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   plan: Plan | null
-  nextId: string
-  onSave: (plan: Plan) => void
+  onSaved: () => void
 }
 
-function PlanFormDrawer({ open, onOpenChange, plan, nextId, onSave }: PlanFormDrawerProps) {
+function PlanFormDrawer({ open, onOpenChange, plan, onSaved }: PlanFormDrawerProps) {
   const isEdit = !!plan
+  const dispatch = useAppDispatch()
+  const { addToast } = useToast()
 
-  const [name, setName] = useState(emptyPlan.name)
-  const [description, setDescription] = useState(emptyPlan.description)
-  const [price, setPrice] = useState(emptyPlan.price)
-  const [durationDays, setDurationDays] = useState(emptyPlan.durationDays)
-  const [isActive, setIsActive] = useState(emptyPlan.isActive)
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<PlanFormValues>({
+    values: plan
+      ? { name: plan.name, description: plan.description, price: plan.price, durationDays: plan.durationDays, isActive: plan.isActive ? "active" : "inactive" }
+      : emptyPlanValues,
+  })
+  const description = watch("description")
 
-  const reset = () => {
-    setName(emptyPlan.name)
-    setDescription(emptyPlan.description)
-    setPrice(emptyPlan.price)
-    setDurationDays(emptyPlan.durationDays)
-    setIsActive(emptyPlan.isActive)
-  }
-
-  useEffect(() => {
-    if (!open) return
-    if (plan) {
-      setName(plan.name)
-      setDescription(plan.description)
-      setPrice(plan.price)
-      setDurationDays(plan.durationDays)
-      setIsActive(plan.isActive)
-    } else {
-      reset()
-    }
-  }, [plan, open])
-
-  const handleSave = () => {
-    if (!name.trim()) {
-      alert("Please fill in required fields")
-      return
-    }
-    const saved: Plan = {
-      id: plan?.id ?? nextId,
-      name: name.trim(),
-      description: description.trim(),
-      price,
-      durationDays,
-      isActive,
-      created: plan?.created ?? new Date().toISOString().slice(0, 10),
-    }
-    onSave(saved)
-    onOpenChange(false)
-  }
-
+  // Reset on close (not on `plan` changing) so a later "create" doesn't inherit
+  // whatever was typed and left unsaved in a previous create session — the
+  // `values` option above still drives switching between edit targets while open.
   const handleOpenChange = (next: boolean) => {
-    if (!next) reset()
+    if (!next) reset(emptyPlanValues)
     onOpenChange(next)
+  }
+
+  const onSubmit = (values: PlanFormValues) => {
+    const payload = {
+      planName: values.name.trim(),
+      planDescription: values.description.trim() || undefined,
+      planPrice: Number(values.price),
+      planDurationDays: Number(values.durationDays),
+      isActive: values.isActive === "active",
+    }
+
+    handleOpenChange(false)
+
+    const toast = addToast(isEdit ? `Saving "${payload.planName}"…` : `Creating "${payload.planName}"…`, "loading")
+    const request = isEdit && plan ? dispatch(updatePlan({ id: plan.id, payload })) : dispatch(createPlan(payload))
+    request
+      .unwrap()
+      .then(() => {
+        toast.update(isEdit ? `Plan "${payload.planName}" updated` : `Plan "${payload.planName}" created`, "success")
+        onSaved()
+      })
+      .catch((err: { message?: string }) => {
+        toast.update(err?.message ?? "Failed to save plan", "error")
+      })
   }
 
   return (
     <AppDrawer open={open} onOpenChange={handleOpenChange}>
       <AppDrawerContent size="default">
-        <AppDrawerHeader>
-          <AppDrawerTitleWrap>
-            <AppDrawerTitle>{isEdit ? "Edit Plan" : "Create Plan"}</AppDrawerTitle>
-            <AppDrawerDescription>
-              {isEdit ? "Update this plan's pricing and details" : "Define a new plan tenants can subscribe to"}
-            </AppDrawerDescription>
-          </AppDrawerTitleWrap>
-          <AppDrawerClose />
-        </AppDrawerHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="contents">
+          <AppDrawerHeader>
+            <AppDrawerTitleWrap>
+              <AppDrawerTitle>{isEdit ? "Edit Plan" : "Create Plan"}</AppDrawerTitle>
+              <AppDrawerDescription>
+                {isEdit ? "Update this plan's pricing and details" : "Define a new plan tenants can subscribe to"}
+              </AppDrawerDescription>
+            </AppDrawerTitleWrap>
+            <AppDrawerClose />
+          </AppDrawerHeader>
 
-        <AppDrawerBody>
-          <Card className="p-4 sm:p-5">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="planName" className="text-xs font-mono">
-                  Plan Name <span className="text-destructive">*</span>
-                </Label>
-                <Input id="planName" placeholder="e.g. Growth" value={name} onChange={(e) => setName(e.target.value)} />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="planDescription" className="text-xs font-mono">Description</Label>
-                <Textarea
-                  id="planDescription"
-                  placeholder="Who this plan is for..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+          <AppDrawerBody>
+            <Card className="p-4 sm:p-5">
+              <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="planPrice" className="text-xs font-mono">Price (USD)</Label>
+                  <Label htmlFor="planName" className="text-xs font-mono">
+                    Plan Name <span className="text-destructive">*</span>
+                  </Label>
                   <Input
-                    id="planPrice"
-                    type="number"
-                    min={0}
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
+                    id="planName"
+                    placeholder="e.g. Growth"
+                    {...register("name", { required: "Plan name is required", maxLength: { value: 100, message: "Must be at most 100 characters" } })}
                   />
+                  {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="planDuration" className="text-xs font-mono">Duration (days)</Label>
-                  <Input
-                    id="planDuration"
-                    type="number"
-                    min={1}
-                    value={durationDays}
-                    onChange={(e) => setDurationDays(Number(e.target.value))}
+                  <Label htmlFor="planDescription" className="text-xs font-mono">Description</Label>
+                  <Textarea
+                    id="planDescription"
+                    placeholder="Who this plan is for..."
+                    className="min-h-[80px]"
+                    maxLength={500}
+                    {...register("description", { maxLength: { value: 500, message: "Must be at most 500 characters" } })}
+                  />
+                  <CharCount value={description} max={500} />
+                  {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="planPrice" className="text-xs font-mono">Price (USD)</Label>
+                    <Input
+                      id="planPrice"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      {...register("price", { required: "Price is required", min: { value: 0, message: "Must be zero or greater" }, valueAsNumber: true })}
+                    />
+                    {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="planDuration" className="text-xs font-mono">Duration (days)</Label>
+                    <Input
+                      id="planDuration"
+                      type="number"
+                      min={1}
+                      {...register("durationDays", { required: "Duration is required", min: { value: 1, message: "Must be greater than zero" }, valueAsNumber: true })}
+                    />
+                    {errors.durationDays && <p className="text-xs text-destructive">{errors.durationDays.message}</p>}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="planStatus" className="text-xs font-mono">Status</Label>
+                  <Controller
+                    name="isActive"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger id="planStatus" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="planStatus" className="text-xs font-mono">Status</Label>
-                <Select value={isActive ? "active" : "inactive"} onValueChange={(v) => setIsActive(v === "active")}>
-                  <SelectTrigger id="planStatus" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-        </AppDrawerBody>
+            </Card>
+          </AppDrawerBody>
 
-        <AppDrawerFooter>
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave}>
-            <IconCheck className="mr-1 h-3.5 w-3.5" /> {isEdit ? "Save Changes" : "Create Plan"}
-          </Button>
-        </AppDrawerFooter>
+          <AppDrawerFooter>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              <IconCheck className="mr-1 h-3.5 w-3.5" /> {isSubmitting ? "Saving…" : isEdit ? "Save Changes" : "Create Plan"}
+            </Button>
+          </AppDrawerFooter>
+        </form>
       </AppDrawerContent>
     </AppDrawer>
   )

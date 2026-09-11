@@ -1,3 +1,5 @@
+import type { PlanResponseDto } from "@/lib/api-types"
+
 export interface Plan {
   id: string
   name: string
@@ -8,41 +10,14 @@ export interface Plan {
   created: string
 }
 
-export const emptyPlan: Omit<Plan, "id"> = {
-  name: "",
-  description: "",
-  price: 0,
-  durationDays: 30,
-  isActive: true,
-  created: "",
+export function mapPlanResponse(dto: PlanResponseDto): Plan {
+  return {
+    id: dto.planId,
+    name: dto.planName,
+    description: dto.planDescription ?? "",
+    price: dto.planPrice,
+    durationDays: dto.planDurationDays,
+    isActive: dto.isActive,
+    created: dto.createdAt,
+  }
 }
-
-export const plans: Plan[] = [
-  {
-    id: "plan-001",
-    name: "Starter",
-    description: "For small teams getting started",
-    price: 29,
-    durationDays: 30,
-    isActive: true,
-    created: "2024-01-01",
-  },
-  {
-    id: "plan-002",
-    name: "Pro",
-    description: "For growing teams that need more resources",
-    price: 99,
-    durationDays: 30,
-    isActive: true,
-    created: "2024-01-01",
-  },
-  {
-    id: "plan-003",
-    name: "Enterprise",
-    description: "Custom limits, dedicated support and SLAs",
-    price: 499,
-    durationDays: 365,
-    isActive: true,
-    created: "2024-01-01",
-  },
-]
