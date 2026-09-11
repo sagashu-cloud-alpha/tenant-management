@@ -1,13 +1,9 @@
 "use client"
 
-import { useState } from "react"
 import { Mail, User } from "lucide-react"
 import { useProfile } from "@/components/profile-provider"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { IconEdit } from "@/components/icons"
-import { ProfileEditDrawer } from "@/components/profile-edit-drawer"
 
 function getInitials(name: string) {
   const initials = name
@@ -22,7 +18,6 @@ function getInitials(name: string) {
 
 export default function ProfilePage() {
   const { name, email, role } = useProfile()
-  const [editOpen, setEditOpen] = useState(false)
   const initials = getInitials(name)
 
   return (
@@ -41,9 +36,6 @@ export default function ProfilePage() {
               <Mail className="h-3.5 w-3.5" /> {email}
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 self-start sm:self-center" title="Edit" onClick={() => setEditOpen(true)}>
-            <IconEdit className="size-3" />
-          </Button>
         </div>
       </Card>
 
@@ -66,8 +58,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </Card>
-
-      <ProfileEditDrawer open={editOpen} onOpenChange={setEditOpen} />
     </div>
   )
 }

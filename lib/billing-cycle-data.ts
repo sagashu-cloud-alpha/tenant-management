@@ -1,3 +1,5 @@
+import type { BillingCycleResponseDto } from "@/lib/api-types"
+
 export interface BillingCycle {
   id: string
   name: string
@@ -5,23 +7,11 @@ export interface BillingCycle {
   created: string
 }
 
-export const emptyBillingCycle: Omit<BillingCycle, "id"> = {
-  name: "",
-  description: "",
-  created: "",
+export function mapBillingCycleResponse(dto: BillingCycleResponseDto): BillingCycle {
+  return {
+    id: dto.billingCycleId,
+    name: dto.billingCycleName,
+    description: dto.billingCycleDescription ?? "",
+    created: dto.createdAt,
+  }
 }
-
-export const billingCycles: BillingCycle[] = [
-  {
-    id: "bc-001",
-    name: "Monthly",
-    description: "Billed every month",
-    created: "2024-01-01",
-  },
-  {
-    id: "bc-002",
-    name: "Annual",
-    description: "Billed once a year, at a discount",
-    created: "2024-01-01",
-  },
-]

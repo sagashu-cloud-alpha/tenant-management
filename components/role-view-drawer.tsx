@@ -1,6 +1,7 @@
 "use client"
 
 import { type Role } from "@/lib/role-data"
+import { type User } from "@/lib/user-data"
 import RoleDetailContent from "@/components/role-detail-content"
 import {
   AppDrawer,
@@ -16,9 +17,10 @@ interface RoleViewDrawerProps {
   role: Role | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  users: User[]
 }
 
-export function RoleViewDrawer({ role, open, onOpenChange }: RoleViewDrawerProps) {
+export function RoleViewDrawer({ role, open, onOpenChange, users }: RoleViewDrawerProps) {
   return (
     <AppDrawer open={open} onOpenChange={onOpenChange}>
       <AppDrawerContent size="default">
@@ -30,7 +32,7 @@ export function RoleViewDrawer({ role, open, onOpenChange }: RoleViewDrawerProps
         </AppDrawerHeader>
 
         <AppDrawerBody>
-          {role && <RoleDetailContent role={role} />}
+          {role && <RoleDetailContent role={role} users={users} />}
         </AppDrawerBody>
       </AppDrawerContent>
     </AppDrawer>

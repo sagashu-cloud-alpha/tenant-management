@@ -1,7 +1,7 @@
 "use client"
 
 import { Mail, Phone, AtSign, CalendarClock, Shield, StickyNote } from "lucide-react"
-import { type User, COLORS, getStatusBadgeClass, getRoleBadgeClass } from "@/lib/user-data"
+import { type User, COLORS, getStatusBadgeClass, getRoleBadgeClass, getSyncBadgeClass } from "@/lib/user-data"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -32,8 +32,16 @@ export default function UserDetailContent({ user: u }: { user: User }) {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:ml-auto">
           <Badge className={getStatusBadgeClass(u.status)}>{u.status}</Badge>
+          <Badge className={getSyncBadgeClass(u.syncStatus)}>Auth0: {u.syncStatus}</Badge>
         </div>
       </div>
+
+      {u.syncStatus === "failure" && (
+        <Card className="border border-[var(--red-border)] bg-[var(--red-bg)] p-4 sm:p-5">
+          <div className="text-xs font-mono text-[var(--red)] uppercase tracking-wider mb-1.5 font-semibold">Auth0 Sync Failed</div>
+          <p className="text-sm text-[var(--red)]">{u.syncFailureReason || "Unknown error"}</p>
+        </Card>
+      )}
 
       {/* Contact Info */}
       <Card className="border border-[var(--border)] bg-[var(--bg2)] p-4 sm:p-5">
@@ -46,7 +54,6 @@ export default function UserDetailContent({ user: u }: { user: User }) {
             { label: "Email", value: u.email, icon: Mail },
             { label: "Phone", value: u.phone || "—", icon: Phone },
             { label: "Created", value: formatDate(u.created), icon: CalendarClock },
-            { label: "Last Active", value: formatDate(u.lastActive), icon: CalendarClock },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-2.5">
               <item.icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />

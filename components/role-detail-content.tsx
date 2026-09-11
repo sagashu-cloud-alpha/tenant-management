@@ -2,7 +2,7 @@
 
 import { CalendarClock, Shield, Users as UsersIcon } from "lucide-react"
 import { type Role, getRoleBadgeClass } from "@/lib/role-data"
-import { users, COLORS } from "@/lib/user-data"
+import { type User, COLORS } from "@/lib/user-data"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -11,7 +11,7 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
 }
 
-export default function RoleDetailContent({ role: r }: { role: Role }) {
+export default function RoleDetailContent({ role: r, users }: { role: Role; users: User[] }) {
   const assignedUsers = users.filter((u) => u.roles.includes(r.name))
 
   return (

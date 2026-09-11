@@ -53,11 +53,14 @@ export function ProfileMenu() {
         </DropdownMenuItem>
         <div className="border-t border-border-default">
           <DropdownMenuItem
+            asChild
             variant="destructive"
             className="gap-2 px-4 py-2.5 text-sm text-error focus:bg-error-bg focus:text-error"
           >
-            <IconLogout className="h-4 w-4 shrink-0" />
-            Sign out
+            <Link href="/auth/logout">
+              <IconLogout className="h-4 w-4 shrink-0" />
+              Sign out
+            </Link>
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>

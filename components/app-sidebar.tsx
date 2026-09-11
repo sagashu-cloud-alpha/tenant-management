@@ -20,14 +20,14 @@ import { AvatarMark } from "./avatar-mark"
 import { IconGrid, IconUsers, IconAdministration } from "@/components/icons"
 import { Shield, SlidersHorizontal } from "lucide-react"
 import { useOrgSettings } from "@/components/org-settings-provider"
+import { useCurrentUserRoles } from "@/components/current-user-provider"
+import { canAccessAdmin } from "@/lib/permissions"
 import type { ComponentType } from "react"
 
 type NavIcon = ComponentType<{ className?: string }>
+type NavSection = { label: string; adminOnly?: boolean; items: { title: string; href: string; icon: NavIcon }[] }
 
-const navSections: {
-  label: string
-  items: { title: string; href: string; icon: NavIcon }[]
-}[] = [
+const navSections: NavSection[] = [
   {
     label: "Workspace",
     items: [
@@ -37,6 +37,10 @@ const navSections: {
   },
   {
     label: "Admin",
+    // Users/Roles are Owner-only end to end (backend rejects reads too, see
+    // UserController/RoleController) and Settings is grouped alongside them —
+    // Developer/Viewer never see this section at all.
+    adminOnly: true,
     items: [
       { title: "Users", href: "/users", icon: IconUsers },
       { title: "Roles", href: "/roles", icon: Shield },
@@ -68,6 +72,8 @@ export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar()
   const isCollapsed = state === "collapsed"
   const { orgName } = useOrgSettings()
+  const roles = useCurrentUserRoles()
+  const visibleSections = navSections.filter((section) => !section.adminOnly || canAccessAdmin(roles))
 
   const handleNavClick = () => {
     if (isMobile) {
@@ -95,7 +101,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {navSections.map((section) => (
+        {visibleSections.map((section) => (
           <SidebarGroup
             key={section.label}
             className="px-2.5 py-1 group-data-[collapsible=icon]:px-2"
